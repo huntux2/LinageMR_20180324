@@ -209,8 +209,8 @@ public class MainService extends Service {
 					y = 180;
 				}
 				if(rank==2) {
-					x = 54;
-					y = 225;
+					x = 64;
+					y = 231;
 				}
 				if(rank==3) {
 					x = 54;

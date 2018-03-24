@@ -227,8 +227,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     }
 
                     {
-                        int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(225,getApplicationContext());
+                        int x = AndroidUtils.DPFromPixel(64,getApplicationContext());
+                        int y = AndroidUtils.DPFromPixel(231,getApplicationContext());
                         if(rank==2) {
                             x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                             y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
