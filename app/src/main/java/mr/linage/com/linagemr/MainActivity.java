@@ -156,7 +156,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             @Override public void run() { // 실행할 동작 코딩
                                 flag_stop = false;
                             }
-                        }, 500);
+                        }, 100);
                     }
                     flag_stop = true;
                     /*
