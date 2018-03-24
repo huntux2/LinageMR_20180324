@@ -491,10 +491,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    int flag_1 = 0;
-    int flag_2 = 0;
-    int flag_3 = 0;
-    int flag_4 = 0;
+    private long flag_1 = 0;
+    private long flag_2 = 0;
+    private long flag_3 = 0;
+    private long flag_4 = 0;
     private long id = 0;
 
     public void setLog(String file_name) {
