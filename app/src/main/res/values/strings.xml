@@ -2,4 +2,5 @@
     <string name="app_name">LinageMR</string>
     <string name="btn_start">Start</string>
     <string name="btn_end">End</string>
+    <string name="btn_soket">Soket</string>
 </resources>

@@ -21,10 +21,25 @@
         android:layout_width="fill_parent"
         android:layout_height="50dp"
         android:text="@string/btn_start" />
+
     <Button
         android:id="@+id/end"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
         android:text="@string/btn_end" />
+
+    <EditText
+        android:id="@+id/soket_ip"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:inputType="number|numberDecimal"
+        android:digits="0123456789."
+        android:text="172.30.1.6" />
+
+    <Button
+        android:id="@+id/soket"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:text="@string/btn_soket" />
 
 </LinearLayout>

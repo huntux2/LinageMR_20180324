@@ -29,9 +29,19 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.widget.EditText;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 
 import mr.linage.com.utils.AndroidUtils;
@@ -79,6 +89,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         findViewById(R.id.start).setOnClickListener(this);		//시작버튼
         findViewById(R.id.end).setOnClickListener(this);			//중시버튼
+        findViewById(R.id.soket).setOnClickListener(this);			//중시버튼
     }
 
     @Override
@@ -393,6 +404,93 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    private String ip = "172.30.1.6"; // IP
+    private int port = 9999; // PORT번호
+
+    private Socket socket;
+
+    private BufferedWriter networkWriter;
+
+    public void setSocket(String ip, int port) throws IOException {
+        try {
+            socket = new Socket(ip, port);
+            networkWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+        } catch (IOException e) {
+            System.out.println(e);
+            e.printStackTrace();
+        }
+    }
+
+    public void startSoket(final String file_name) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
+                    if(!"".equals(ip)) {
+                        setSocket(ip, port);
+                        PrintWriter out = new PrintWriter(networkWriter, true);
+                        String return_msg = file_name;
+                        out.println(return_msg);
+                        closeSoket();
+                    }
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    public void closeSoket() {
+        try {
+            if(socket!=null) {
+                socket.close();
+                socket = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void soket() {
+        //자동 close
+        try(Socket client = new Socket()){
+            //클라이언트 초기화
+            InetSocketAddress ipep = new InetSocketAddress("172.30.1.6", 9999);
+            //접속
+            client.connect(ipep);
+
+            //send,reciever 스트림 받아오기
+            //자동 close
+            try(OutputStream sender = client.getOutputStream();
+                InputStream receiver = client.getInputStream();){
+                //서버로부터 데이터 받기
+                //11byte
+                byte[] data = new byte[11];
+                receiver.read(data,0,11);
+
+                //수신메시지 출력
+                String message = new String(data);
+                String out = String.format("recieve - %s", message);
+                System.out.println(out);
+
+                //서버로 데이터 보내기
+                //2byte
+                message = "OK";
+                data = message.getBytes();
+                sender.write(data, 0, data.length);
+            }
+        }catch(Throwable e){
+            e.printStackTrace();
+        }
+    }
+
     int flag_1 = 0;
     int flag_2 = 0;
     int flag_3 = 0;
@@ -403,6 +501,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         id++;
         Log.d("LinageMR", file_name+" "+"adb shell input tap 750 650::id::" + id+" app_log");
         AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
+
+        startSoket(file_name);
     }
 
     @Override
@@ -423,9 +523,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //            startService(new Intent(this, MainService.class));    //서비스 시작
             bindService(new Intent(this, MainService.class), mConnection, Context.BIND_AUTO_CREATE);
             mIsBound = true;
-        } else {
+        } else if(view == R.id.end) {
             if(mIsBound)
             unbindService(mConnection);    //서비스 종료
+        } else if(view == R.id.soket) {
+            Log.i("test","networkWriter"+networkWriter);
+            startSoket("file_name");
         }
     }
 
