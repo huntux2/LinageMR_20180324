@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="mr.linage.com.linagemr.MainActivity">
+
+    <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="50dp"
+    android:text="서비스 테스트 입니다."
+    android:textColor="@android:color/white"
+    android:textSize="20dp"
+    android:gravity="center_vertical" />
+
+    <Button
+        android:id="@+id/start"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:text="@string/btn_start" />
+    <Button
+        android:id="@+id/end"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:text="@string/btn_end" />
+
+</LinearLayout>
