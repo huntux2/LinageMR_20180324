@@ -550,15 +550,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     public void setLog(final String file_name) {
         try {
-//            new Thread() {
-//                @Override
-//                public void run() {
-//                    super.run();
-//                    id++;
-//                    Log.d("LinageMR", file_name+" "+"adb shell input tap 750 650::id::" + id+" app_log");
-//                    AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
-//                }
-//            }.start();
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    id++;
+                    Log.d("LinageMR", file_name+" "+"adb shell input tap 750 650::id::" + id+" app_log");
+                    AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
+                }
+            }.start();
             startSoket(file_name);
         } catch (Exception e) {
             e.printStackTrace();
