@@ -410,7 +410,8 @@ public class MainService extends Service {
 			Message msg = Message.obtain(null, MSG_SEND_TO_ACTIVITY);
 			msg.setData(bundle);
 			mClient.send(msg);      // msg 보내기
-		} catch (RemoteException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

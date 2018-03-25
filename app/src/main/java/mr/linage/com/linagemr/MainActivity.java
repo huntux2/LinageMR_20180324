@@ -322,7 +322,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 if (fos != null) {
                     try {
                         fos.close();
-                    } catch (IOException ioe) {
+                    } catch (Exception ioe) {
                         ioe.printStackTrace();
                     }
                 }
@@ -467,56 +467,60 @@ public class MainActivity extends Activity implements View.OnClickListener {
         try {
             socket = new Socket(ip, port);
             networkWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();
         }
     }
 
     public void startSoket(final String file_name) {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
-                    if(!"".equals(ip)) {
-                        setSocket(ip, port);
-                        out = new PrintWriter(networkWriter, true);
-                        String return_msg = file_name;
-                        out.println(return_msg);
-                        out.close();
-                        closeSoket();
-                    }
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                } finally {
+        try {
+            new Thread() {
+                @Override
+                public void run() {
                     try {
-                        if(out!=null) {
+                        String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
+                        if(!"".equals(ip)) {
+                            setSocket(ip, port);
+                            out = new PrintWriter(networkWriter, true);
+                            String return_msg = file_name;
+                            out.println(return_msg);
                             out.close();
-                            out = null;
+                            closeSoket();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        if(networkWriter!=null) {
-                            networkWriter.close();
-                            networkWriter = null;
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    } finally {
+                        try {
+                            if(out!=null) {
+                                out.close();
+                                out = null;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        if(socket!=null) {
-                            socket.close();
-                            socket = null;
+                        try {
+                            if(networkWriter!=null) {
+                                networkWriter.close();
+                                networkWriter = null;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        try {
+                            if(socket!=null) {
+                                socket.close();
+                                socket = null;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }
-        }.start();
+            }.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void closeSoket() {
@@ -538,39 +542,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    public void soket() {
-        //자동 close
-        try(Socket client = new Socket()){
-            //클라이언트 초기화
-            InetSocketAddress ipep = new InetSocketAddress("172.30.1.6", 9999);
-            //접속
-            client.connect(ipep);
-
-            //send,reciever 스트림 받아오기
-            //자동 close
-            try(OutputStream sender = client.getOutputStream();
-                InputStream receiver = client.getInputStream();){
-                //서버로부터 데이터 받기
-                //11byte
-                byte[] data = new byte[11];
-                receiver.read(data,0,11);
-
-                //수신메시지 출력
-                String message = new String(data);
-                String out = String.format("recieve - %s", message);
-                System.out.println(out);
-
-                //서버로 데이터 보내기
-                //2byte
-                message = "OK";
-                data = message.getBytes();
-                sender.write(data, 0, data.length);
-            }
-        }catch(Throwable e){
-            e.printStackTrace();
-        }
-    }
-
     private long flag_1 = 0;
     private long flag_2 = 0;
     private long flag_3 = 0;
@@ -578,16 +549,20 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private long id = 0;
 
     public void setLog(final String file_name) {
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                id++;
-                Log.d("LinageMR", file_name+" "+"adb shell input tap 750 650::id::" + id+" app_log");
-                AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
-            }
-        }.start();
-        startSoket(file_name);
+        try {
+//            new Thread() {
+//                @Override
+//                public void run() {
+//                    super.run();
+//                    id++;
+//                    Log.d("LinageMR", file_name+" "+"adb shell input tap 750 650::id::" + id+" app_log");
+//                    AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
+//                }
+//            }.start();
+            startSoket(file_name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -650,7 +625,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     msg.arg1 = number;
                     msg.replyTo = mMessenger;
                     mServiceMessenger.send(msg);
-                } catch (RemoteException e) {
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -665,8 +641,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 Message msg = Message.obtain(null, MainService.MSG_REGISTER_CLIENT);
                 msg.replyTo = mMessenger;
                 mServiceMessenger.send(msg);
-            }
-            catch (RemoteException e) {
+            } catch (RemoteException e) {
+                e.printStackTrace();
             }
         }
 
