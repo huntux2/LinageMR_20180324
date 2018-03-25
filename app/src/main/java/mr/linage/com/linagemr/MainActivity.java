@@ -127,7 +127,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 HandlerThread thread = new HandlerThread("CameraPicture");
                 thread.start();
                 final Handler backgroudHandler = new Handler(thread.getLooper());
-                mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), backgroudHandler);
+                mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), backgroudHandler/*backgroudHandler*/);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -156,7 +156,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             @Override public void run() { // 실행할 동작 코딩
                                 flag_stop = false;
                             }
-                        }, 100);
+                        }, 250);
                     }
                     flag_stop = true;
                     /*
@@ -343,52 +343,98 @@ public class MainActivity extends Activity implements View.OnClickListener {
          * 캐릭명 빨강(233,154,23,19)
          */
         if(260>R&&R>150&&G<100&&B<100) {
-            /**
-             * 마을세이프티(780,238)
-             */
-//            rgb = bitmap.getPixel(AndroidUtils.DPFromPixel(780,getApplicationContext()), AndroidUtils.DPFromPixel(238,getApplicationContext())); //원하는 좌표값 입력
-//            A = Color.alpha(rgb); //alpha값 추출
-//            R = Color.red(rgb); //red값 추출
-//            G = Color.green(rgb); //green값 추출
-//            B = Color.blue(rgb); //blue값 추출
             if(rank==1) {
-                if(flag_1==0) {
+                /**
+                 * 마을세이프티(780,238)
+                 */
+                int rgb_ = bitmap.getPixel(AndroidUtils.DPFromPixel(780,getApplicationContext()), AndroidUtils.DPFromPixel(238,getApplicationContext())); //원하는 좌표값 입력
+                int A_ = Color.alpha(rgb_); //alpha값 추출
+                int R_ = Color.red(rgb_); //red값 추출
+                int G_ = Color.green(rgb_); //green값 추출
+                int B_ = Color.blue(rgb_); //blue값 추출
+                Log.i("rgb","app_log_4"+" "+"R : "+R_+" "+"G : "+G_+" "+"B : "+B_);
+                if((R_<35&&R_>20)&&(G_<145&&G_>130)&&(B_<240&&B_>225)) {
+                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
+                } else {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
                     setLog(file_name);
-                } else {
-                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
                 }
-                flag_1++;
-            } else if(rank==2) {
-                if(flag_2==0) {
-                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
-                    setLog(file_name);
-                } else {
-                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
-                }
-                flag_2++;
-            } else if(rank==3) {
-                if(flag_3==0) {
-                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
-                    setLog(file_name);
-                } else {
-                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
-                }
-                flag_3++;
-            } else if(rank==4) {
-//                if(R==31&&G==138&&B==236) {
-//                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
-//                } else {
+//                if(flag_1==0) {
 //                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
 //                    setLog(file_name);
+//                } else {
+//                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
 //                }
-                if(flag_4==0) {
+//                flag_1++;
+            } else if(rank==2) {
+                /**
+                 * 마을세이프티(780,238)
+                 */
+                int rgb_ = bitmap.getPixel(AndroidUtils.DPFromPixel(780,getApplicationContext()), AndroidUtils.DPFromPixel(238,getApplicationContext())); //원하는 좌표값 입력
+                int A_ = Color.alpha(rgb_); //alpha값 추출
+                int R_ = Color.red(rgb_); //red값 추출
+                int G_ = Color.green(rgb_); //green값 추출
+                int B_ = Color.blue(rgb_); //blue값 추출
+                Log.i("rgb","app_log_4"+" "+"R : "+R_+" "+"G : "+G_+" "+"B : "+B_);
+                if((R_<35&&R_>20)&&(G_<145&&G_>130)&&(B_<240&&B_>225)) {
+                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
+                } else {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
                     setLog(file_name);
-                } else {
-                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
                 }
-                flag_4++;
+//                if(flag_2==0) {
+//                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
+//                    setLog(file_name);
+//                } else {
+//                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
+//                }
+//                flag_2++;
+            } else if(rank==3) {
+                /**
+                 * 마을세이프티(780,238)
+                 */
+                int rgb_ = bitmap.getPixel(AndroidUtils.DPFromPixel(780,getApplicationContext()), AndroidUtils.DPFromPixel(238,getApplicationContext())); //원하는 좌표값 입력
+                int A_ = Color.alpha(rgb_); //alpha값 추출
+                int R_ = Color.red(rgb_); //red값 추출
+                int G_ = Color.green(rgb_); //green값 추출
+                int B_ = Color.blue(rgb_); //blue값 추출
+                Log.i("rgb","app_log_4"+" "+"R : "+R_+" "+"G : "+G_+" "+"B : "+B_);
+                if((R_<35&&R_>20)&&(G_<145&&G_>130)&&(B_<240&&B_>225)) {
+                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
+                } else {
+                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
+                    setLog(file_name);
+                }
+//                if(flag_3==0) {
+//                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
+//                    setLog(file_name);
+//                } else {
+//                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
+//                }
+//                flag_3++;
+            } else if(rank==4) {
+                /**
+                 * 마을세이프티(780,238)
+                 */
+                int rgb_ = bitmap.getPixel(AndroidUtils.DPFromPixel(780,getApplicationContext()), AndroidUtils.DPFromPixel(238,getApplicationContext())); //원하는 좌표값 입력
+                int A_ = Color.alpha(rgb_); //alpha값 추출
+                int R_ = Color.red(rgb_); //red값 추출
+                int G_ = Color.green(rgb_); //green값 추출
+                int B_ = Color.blue(rgb_); //blue값 추출
+                Log.i("rgb","app_log_4"+" "+"R : "+R_+" "+"G : "+G_+" "+"B : "+B_);
+                if((R_<35&&R_>20)&&(G_<145&&G_>130)&&(B_<240&&B_>225)) {
+                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
+                } else {
+                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
+                    setLog(file_name);
+                }
+//                if(flag_4==0) {
+//                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
+//                    setLog(file_name);
+//                } else {
+//                    Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
+//                }
+//                flag_4++;
             }
         } else {
             Log.d("LinageMR", file_name+" "+"===>>> 귀환준비~");
@@ -415,12 +461,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Socket socket;
 
     private BufferedWriter networkWriter;
+    private PrintWriter out;
 
-    public void setSocket(String ip, int port) throws IOException {
+    public void setSocket(String ip, int port) throws Exception {
         try {
             socket = new Socket(ip, port);
             networkWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
         } catch (IOException e) {
             System.out.println(e);
             e.printStackTrace();
@@ -435,25 +481,59 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
                     if(!"".equals(ip)) {
                         setSocket(ip, port);
-                        PrintWriter out = new PrintWriter(networkWriter, true);
+                        out = new PrintWriter(networkWriter, true);
                         String return_msg = file_name;
                         out.println(return_msg);
+                        out.close();
                         closeSoket();
                     }
-                } catch (IOException e1) {
+                } catch (Exception e1) {
                     e1.printStackTrace();
+                } finally {
+                    try {
+                        if(out!=null) {
+                            out.close();
+                            out = null;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        if(networkWriter!=null) {
+                            networkWriter.close();
+                            networkWriter = null;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        if(socket!=null) {
+                            socket.close();
+                            socket = null;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }.start();
     }
 
     public void closeSoket() {
+        try{
+            if(networkWriter!=null) {
+                networkWriter.close();
+                networkWriter = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             if(socket!=null) {
                 socket.close();
                 socket = null;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -497,11 +577,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private long flag_4 = 0;
     private long id = 0;
 
-    public void setLog(String file_name) {
-        id++;
-        Log.d("LinageMR", file_name+" "+"adb shell input tap 750 650::id::" + id+" app_log");
-        AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
-
+    public void setLog(final String file_name) {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                id++;
+                Log.d("LinageMR", file_name+" "+"adb shell input tap 750 650::id::" + id+" app_log");
+                AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
+            }
+        }.start();
         startSoket(file_name);
     }
 
