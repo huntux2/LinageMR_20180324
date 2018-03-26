@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -30,25 +31,29 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
 
 public class MainActivity extends Activity implements View.OnClickListener {
-    int REQUEST_CODE = 0;
+
+    private String TAG = getClass().getSimpleName().trim();
+
+    private int REQUEST_CODE = 0;
 
     private MediaProjectionManager mProjectionManager;
     private MediaProjection sMediaProjection;
@@ -63,6 +68,169 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private int p_x = 54;
     private int p_y = 180;
     private int rank = 1;
+
+    /**
+     * 소켓 변수
+     */
+    private Socket socket;
+    private TCPClient client;
+    private Handler mMainHandler;
+    private HandlerThread thread;
+    private Looper mServiceLooper;
+    private ServiceHandler mServiceHandler;
+    private BufferedWriter networkWriter;
+    private BufferedReader networkReader;
+
+    private final int MSG_CONNECT = 0;
+    private final int MSG_CLIENT_STOP = 1;
+    private final int MSG_SERVER_STOP = 2;
+    private final int MSG_START = 3;
+    private final int MSG_STOP = 4;
+    private final int MSG_ERROR = 5;
+
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_START:
+                    Message toMain = mMainHandler.obtainMessage();
+                    try {
+                        networkWriter.write((String) msg.obj);
+                        networkWriter.newLine();
+                        networkWriter.flush();
+                        toMain.what = MSG_START;
+                    } catch (Exception e) {
+                        toMain.what = MSG_ERROR;
+                        Log.d(TAG, "에러 발생", e);
+                    }
+                    toMain.obj = msg.obj;
+                    mMainHandler.sendMessage(toMain);
+                    break;
+                case MSG_STOP:
+                case MSG_CLIENT_STOP:
+                case MSG_SERVER_STOP:
+                    client.quit();
+                    client = null;
+                    break;
+            }
+        }
+    }
+
+    public class TCPClient extends Thread {
+        Boolean loop;
+        SocketAddress socketAddress;
+        String line;
+        private final int connection_timeout = 3000;
+
+        public TCPClient(String ip, int port) throws RuntimeException {
+            socketAddress = new InetSocketAddress(ip, port);
+        }
+
+        @Override
+        public void run() {
+            try {
+                socket = new Socket();
+
+                socket.setSoTimeout(connection_timeout);
+                //read 메서드가 connection_timeout 시간동안 응답을 기다린다.
+                socket.setSoLinger(true, connection_timeout);
+                //서버와의 정상 종료를 위해서 connection_timeout 시간동안 close 호출 후 기다린다.
+                socket.connect(socketAddress, connection_timeout);
+
+                networkWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                InputStreamReader i = new InputStreamReader(socket.getInputStream());
+                networkReader = new BufferedReader(i);
+
+                Message toMain = mMainHandler.obtainMessage();
+                toMain.what = MSG_CONNECT;
+                mMainHandler.sendMessage(toMain);
+                loop = true;
+            } catch (Exception e) {
+                loop = false;
+                Message toMain = mMainHandler.obtainMessage();
+                toMain.what = MSG_ERROR;
+                toMain.obj = "소켓을 생성하지 못했습니다.";
+                mMainHandler.sendMessage(toMain);
+            }
+
+            while (loop) {
+                try {
+                    line = networkReader.readLine();
+                    //readLine()은 블록모드로 작동하기 때문에 별도의 스레드에서 실행한다.
+                    if (line == null) //서버에서 FIN 패킷을 보내면 null을 반환한다.
+                        break;
+                    Runnable showUpdate = new Runnable() {
+                        @Override
+                        public void run() {
+//                            text.setText(line);
+                            Log.d(TAG, line);
+                        }
+                    };
+
+                    mMainHandler.post(showUpdate);
+                    //Runnable 객체를 메인 핸들러로 전달해 UI를 변경한다.
+                } catch (InterruptedIOException e) {
+                } catch (IOException e) {
+                    loop = false;
+//                    Log.d(TAG, "에러 발생", e);
+                    e.printStackTrace();
+                    break;
+                }
+            }
+
+            try  {  //소켓을 close 하면 null로 설정해서 가비지 컬렉션이 되도록 한다.
+                if (networkWriter != null) {
+                    networkWriter.close();
+                    networkWriter = null;
+                }
+                if (networkReader != null) {
+                    networkReader.close();
+                    networkReader = null;
+                }
+                if (socket != null) {
+                    socket.close();
+                    socket = null;
+                }
+
+                client = null;
+                if (loop) { //클라이언트에서 연결을 끊지 않고 서버에서 FIN 패킷을 받았을 경우
+                    loop = false;
+                    Message toMain = mMainHandler.obtainMessage();
+                    toMain.what = MSG_SERVER_STOP;
+                    toMain.obj = "네트워크가 끊어졌습니다.";
+                    mMainHandler.sendMessage(toMain);
+                }
+            } catch(IOException e ) {
+                Log.d(TAG, "에러 발생", e);
+                Message toMain = mMainHandler.obtainMessage();
+                toMain.what = MSG_ERROR;
+                toMain.obj = "소켓을 닫지 못했습니다..";
+                mMainHandler.sendMessage(toMain);
+            }
+        }
+
+        public void quit() {
+            loop = false;
+
+            try {
+                if (socket != null) {
+                    socket.close();
+                    socket = null;
+
+                    Message toMain = mMainHandler.obtainMessage();
+                    toMain.what = MSG_CLIENT_STOP;
+                    toMain.obj = "접속을 중단합니다.";
+                    mMainHandler.sendMessage(toMain);
+                }
+            } catch (IOException e) {
+                Log.d(TAG, "에러 발생", e);
+            }
+        }
+    }
 
     /** Called when the activity is first created. */
     @Override
@@ -89,7 +257,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         findViewById(R.id.start).setOnClickListener(this);		//시작버튼
         findViewById(R.id.end).setOnClickListener(this);			//중시버튼
-        findViewById(R.id.soket).setOnClickListener(this);			//중시버튼
+        findViewById(R.id.soket).setOnClickListener(this);			//연결
+        findViewById(R.id.soket_send).setOnClickListener(this);			//보내기
+
+        SoketStart();
     }
 
     @Override
@@ -455,12 +626,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         super.onStop();
     }
 
-    private String ip = "172.30.1.6"; // IP
-    private int port = 9999; // PORT번호
-
-    private Socket socket;
-
-    private BufferedWriter networkWriter;
     private PrintWriter out;
 
     public void setSocket(String ip, int port) throws Exception {
@@ -481,7 +646,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     try {
                         String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
                         if(!"".equals(ip)) {
-                            setSocket(ip, port);
+                            setSocket(ip, 9999);
                             out = new PrintWriter(networkWriter, true);
                             String return_msg = file_name;
                             out.println(return_msg);
@@ -559,7 +724,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
                 }
             }.start();
-            startSoket(file_name);
+//            startSoket(file_name);
+            Message msg = mServiceHandler.obtainMessage();
+            msg.what = MSG_START;
+            msg.obj = file_name;
+            mServiceHandler.sendMessage(msg);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -588,7 +757,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
             unbindService(mConnection);    //서비스 종료
         } else if(view == R.id.soket) {
             Log.i("test","networkWriter"+networkWriter);
-            startSoket("file_name");
+            SoketStart();
+        } else if(view == R.id.soket_send) {
+            Log.i("test","networkWriter"+networkWriter);
+            Message msg = mServiceHandler.obtainMessage();
+            msg.what = MSG_START;
+            msg.obj = "Hello World!";
+            mServiceHandler.sendMessage(msg);
         }
     }
 
@@ -653,4 +828,81 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     };
 
+    private void SoketStart() {
+        final String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
+        if(!"".equals(ip)) {
+            SoketClose();
+            /**
+             * 소켓 통신 세팅
+             */
+            try {
+                client = new TCPClient(ip, 9999);
+                client.start();
+            } catch (RuntimeException e) {
+                Log.d(TAG, "에러 발생", e);
+            }
+            thread = new HandlerThread("HandlerThread");
+            thread.start();
+            // 루퍼를 만든다.
+            mServiceLooper = thread.getLooper();
+            mServiceHandler = new ServiceHandler(mServiceLooper);
+            mMainHandler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    String m;
+                    switch (msg.what) {
+                        case MSG_CONNECT:
+                            Log.d(TAG,"ip:"+ip);
+                            m = "정상적으로 서버에 접속하였습니다.";
+                            Log.d(TAG,m);
+                            ((TextView)findViewById(R.id.text_tv)).setText(m);
+                            break;
+                        case MSG_CLIENT_STOP:
+                            Log.d(TAG, (String) msg.obj);
+                            m = "클라이언트가 접속을 종료하였습니다.";
+                            Log.d(TAG,m);
+                            ((TextView)findViewById(R.id.text_tv)).setText(m);
+                            break;
+                        case MSG_SERVER_STOP:
+                            Log.d(TAG, (String) msg.obj);
+                            m = "서버가 접속을 종료하였습니다.";
+                            Log.d(TAG,m);
+                            ((TextView)findViewById(R.id.text_tv)).setText(m);
+                            break;
+                        case MSG_START:
+                            Log.d(TAG, (String) msg.obj);
+                            m = "메세지 전송 완료!";
+                            Log.d(TAG,m);
+                            ((TextView)findViewById(R.id.text_tv)).setText(m);
+                            break;
+                        default:
+                            Log.d(TAG, (String) msg.obj);
+                            m = "에러 발생!";
+                            Log.d(TAG,m);
+                            ((TextView)findViewById(R.id.text_tv)).setText(m);
+                            break;
+                    }
+                    super.handleMessage(msg);
+                }
+            };
+        }
+    }
+
+    private void SoketClose() {
+        if (client != null) {  //소켓과 스레드를 모두 종료시킨다.
+            Message msg = mServiceHandler.obtainMessage();
+            msg.what = MSG_STOP;
+            mServiceHandler.sendMessage(msg);
+        }
+        if(thread!=null) {
+            thread.quit();
+            thread = null;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SoketClose();
+    }
 }
