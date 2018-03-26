@@ -321,6 +321,36 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
                     public void run() {
 
+                        /**
+                         * DeadObjectException 확인 필요 롤립팝 에러 마시마로우 업데이트 필요 버전 확인 preview 3 (Android M 미리보기 3) 이상
+                         * 03-26 16:43:41.575 886-935/? W/VirtualDisplayAdapter: Failed to notify listener of virtual display event.
+                         android.os.DeadObjectException
+                         at android.os.BinderProxy.transactNative(Native Method)
+                         at android.os.BinderProxy.transact(Binder.java:496)
+                         at android.hardware.display.IVirtualDisplayCallback$Stub$Proxy.onStopped(IVirtualDisplayCallback.java:125)
+                         at com.android.server.display.VirtualDisplayAdapter$Callback.handleMessage(VirtualDisplayAdapter.java:364)
+                         at android.os.Handler.dispatchMessage(Handler.java:102)
+                         at android.os.Looper.loop(Looper.java:135)
+                         at android.os.HandlerThread.run(HandlerThread.java:61)
+                         at com.android.server.ServiceThread.run(ServiceThread.java:46)
+                         03-26 16:43:41.575 886-935/? I/DisplayManagerService: Display device removed: DisplayDeviceInfo{"VirtualDisplay name": uniqueId="virtual:mr.linage.com.linagemr,10275,VirtualDisplay name,2", 1188 x 720, 60.0 fps, supportedRefreshRates [60.0], density 320, 320.0 x 320.0 dpi, appVsyncOff 0, presDeadline 16666666, touch NONE, rotation 0, type VIRTUAL, state ON, owner mr.linage.com.linagemr (uid 10275), FLAG_PRESENTATION}
+                         03-26 16:43:41.586 886-886/? W/MediaProjectionManagerService: Failed to notify media projection has stopped
+                         android.os.DeadObjectException
+                         at android.os.BinderProxy.transactNative(Native Method)
+                         at android.os.BinderProxy.transact(Binder.java:496)
+                         at android.media.projection.IMediaProjectionCallback$Stub$Proxy.onStop(IMediaProjectionCallback.java:75)
+                         at com.android.server.media.projection.MediaProjectionManagerService$ClientStopCallback.run(MediaProjectionManagerService.java:650)
+                         at android.os.Handler.handleCallback(Handler.java:739)
+                         at android.os.Handler.dispatchMessage(Handler.java:95)
+                         at android.os.Looper.loop(Looper.java:135)
+                         at com.android.server.SystemServer.run(SystemServer.java:284)
+                         at com.android.server.SystemServer.main(SystemServer.java:185)
+                         at java.lang.reflect.Method.invoke(Native Method)
+                         at java.lang.reflect.Method.invoke(Method.java:372)
+                         at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:914)
+                         at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:707)
+                         */
+
                         /*
                         virtualdisplay를 release 해주고 imagereader의 이벤트도 빼버리고 그런데
                         imagereader 이벤트 빼고나서 null로 주어야되지않나? 알아서 가비지컬렉터가
