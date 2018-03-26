@@ -29,6 +29,7 @@ import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -45,6 +46,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
@@ -251,7 +254,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
                 // 실제 권한을 사용자에게 통보하고 권한을 요구하게 됩니다.
-                startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
+                startProjection();
             }
         }
 
@@ -261,6 +264,42 @@ public class MainActivity extends Activity implements View.OnClickListener {
         findViewById(R.id.soket_send).setOnClickListener(this);			//보내기
 
         SoketStart();
+
+        /*
+        여기서 mHandler가 만들어지게 됩니다.
+        새로운 스레드 하나 만들고, 핸들러 만들어서 prepare()로 메세지큐가 준비되면, 핸들러 만들고
+        loop로 이제 무한정 기다리게 된다네요. 해당 스레드를 사용할때는 성능상 문제가 없도록
+        구현해야 된다고 합니다. 강제종료를 시키지 않으면, 메모리를 계속 차지하고 있으니까요.
+        그런데 아직도 핸들러 개념이 어렵습니다. 위에서 말했던 것과 다르게 엄...
+        스레드가 충돌 나는 부분이라기도 애매한게 여기서 새로운 스레드를 만든건데...아...
+        모르겠습니다 그냥 패스. 책 보면서 추가 공부 해야되겠습니다.
+        */
+        new Thread() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                mHandler = new Handler();
+                Looper.loop();
+            }
+        }.start();
+    }
+
+    private void startProjection() {
+        //사용자 허가 요청!
+        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
+    }
+
+    private void stopProjection() {
+        //projection을 종료 합니다. stop()! mediaprojection callback의
+        //onstop method가 호출 되겠네요.
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (sMediaProjection != null) {
+                    sMediaProjection.stop();
+                }
+            }
+        });
     }
 
     @Override
@@ -277,28 +316,38 @@ public class MainActivity extends Activity implements View.OnClickListener {
             // 사용자가 권한을 허용해주었기에 mediaProjection을 사용할 수 있는 권한이 생기게 됩니다.
             sMediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
             if (sMediaProjection != null) {
+
+                TimerTask adTast = new TimerTask() {
+
+                    public void run() {
+
+                        /*
+                        virtualdisplay를 release 해주고 imagereader의 이벤트도 빼버리고 그런데
+                        imagereader 이벤트 빼고나서 null로 주어야되지않나? 알아서 가비지컬렉터가
+                        메모리 해제해주는지 모르겠네요. newInstance로 새롭게 객체 만들텐데
+                        쨋든 그러고나서 createVirtualDisplay로 virtualdisplay 새로 생성
+                        */
+                        if (mVirtualDisplay != null) mVirtualDisplay.release();
+                        if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
+
+                        createVirtualDisplay();
+
+                    }
+
+                };
+
+                Timer timer = new Timer();
+                timer.schedule(adTast, 0, 5000); // 0초후 첫실행, 3초마다 계속실행
+
                 /*
-                현재 디스플레이의 density dpi 가져 옵니다.
+                여건 orientation callback 등록 부분.
+                감지 할 수 있ㅇ면, enable()로 이제 감지하게끔 해주는가 봅니다.
                 */
-                DisplayMetrics metrics = getResources().getDisplayMetrics();
-                mDensity = metrics.densityDpi;
-                mDisplay = getWindowManager().getDefaultDisplay();
-
-                //가로,세로 고려 사이즈는 다시 설정하고
-                Point size = new Point();
-                mDisplay.getSize(size);
-                mWidth = size.x;
-                mHeight = size.y;
-
-                mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
-
-                // MediaProjection에 대한 Event 정보를 받으려면 아래와 같이 적용하시면 됩니다.
-                mVirtualDisplay = sMediaProjection.createVirtualDisplay("VirtualDisplay name", mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null /* Callbacks */, null /* Handler */);
-
-                HandlerThread thread = new HandlerThread("CameraPicture");
-                thread.start();
-                final Handler backgroudHandler = new Handler(thread.getLooper());
-                mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), backgroudHandler/*backgroudHandler*/);
+                mOrientationChangeCallback = new OrientationChangeCallback(this);
+                if (mOrientationChangeCallback.canDetectOrientation()) {
+                    mOrientationChangeCallback.enable();
+                }
+                sMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -638,56 +687,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    public void startSoket(final String file_name) {
-        try {
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
-                        if(!"".equals(ip)) {
-                            setSocket(ip, 9999);
-                            out = new PrintWriter(networkWriter, true);
-                            String return_msg = file_name;
-                            out.println(return_msg);
-                            out.close();
-                            closeSoket();
-                        }
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    } finally {
-                        try {
-                            if(out!=null) {
-                                out.close();
-                                out = null;
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            if(networkWriter!=null) {
-                                networkWriter.close();
-                                networkWriter = null;
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            if(socket!=null) {
-                                socket.close();
-                                socket = null;
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void closeSoket() {
         try{
             if(networkWriter!=null) {
@@ -724,7 +723,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     AndroidUtils.writeFile("LinageMR adb shell input tap 750 650::id::" + id, file_name);
                 }
             }.start();
-//            startSoket(file_name);
             Message msg = mServiceHandler.obtainMessage();
             msg.what = MSG_START;
             msg.obj = file_name;
@@ -904,5 +902,82 @@ public class MainActivity extends Activity implements View.OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
         SoketClose();
+    }
+    private Handler mHandler;
+
+    private OrientationChangeCallback mOrientationChangeCallback;
+
+    private class OrientationChangeCallback extends OrientationEventListener {
+        //생성자가 필히 요구 됩니다.
+        public OrientationChangeCallback(Context context) {
+            super(context);
+        }
+        @Override
+        public void onOrientationChanged(int orientation) {
+            synchronized (this) {
+                //화면 전환으로 인해서 virtualdisplay를 새로만드는 과정이니 동기화 시켜주고
+                final int rotation = mDisplay.getRotation();
+
+                //rotation값이다르다면
+                if (rotation != mRotation) {
+                    mRotation = rotation;
+                    try {
+                        /*
+                        virtualdisplay를 release 해주고 imagereader의 이벤트도 빼버리고 그런데
+                        imagereader 이벤트 빼고나서 null로 주어야되지않나? 알아서 가비지컬렉터가
+                        메모리 해제해주는지 모르겠네요. newInstance로 새롭게 객체 만들텐데
+                        쨋든 그러고나서 createVirtualDisplay로 virtualdisplay 새로 생성
+                        */
+                        if (mVirtualDisplay != null) mVirtualDisplay.release();
+                        if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
+
+                        createVirtualDisplay();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    //가상 디스플레이를 만듭니다.
+    private void createVirtualDisplay() {
+        /*
+        현재 디스플레이의 density dpi 가져 옵니다.
+        */
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        mDensity = metrics.densityDpi;
+        mDisplay = getWindowManager().getDefaultDisplay();
+
+        //가로,세로 고려 사이즈는 다시 설정하고
+        Point size = new Point();
+        mDisplay.getSize(size);
+        mWidth = size.x;
+        mHeight = size.y;
+
+        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
+
+        // MediaProjection에 대한 Event 정보를 받으려면 아래와 같이 적용하시면 됩니다.
+        mVirtualDisplay = sMediaProjection.createVirtualDisplay("VirtualDisplay name", mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null /* Callbacks */, mHandler /* Handler */);
+
+        HandlerThread thread = new HandlerThread("CameraPicture");
+        thread.start();
+        final Handler backgroudHandler = new Handler(thread.getLooper());
+        mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), backgroudHandler/*backgroudHandler*/);
+    }
+
+    private class MediaProjectionStopCallback extends MediaProjection.Callback {
+        @Override
+        public void onStop() {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mVirtualDisplay != null) mVirtualDisplay.release();
+                    if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
+                    if (mOrientationChangeCallback != null) mOrientationChangeCallback.disable();
+                    sMediaProjection.unregisterCallback(MediaProjectionStopCallback.this);
+                }
+            });
+        }
     }
 }
