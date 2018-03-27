@@ -35,7 +35,7 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
+import java.nio.Buffer;
 
 import mr.linage.com.utils.AndroidUtils;
 
@@ -143,7 +143,7 @@ public class Main2Activity extends Activity implements View.OnClickListener {
         mDisplay.getSize(size);
         mWidth = size.x;
         mHeight = size.y;
-        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
+        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 5);
         mVirtualDisplay = sMediaProjection.createVirtualDisplay("VirtualDisplay name", mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader.getSurface(), null /* Callbacks */, null /* Handler */);
         mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), null/*backgroudHandler*/);
     }
@@ -158,12 +158,11 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                 image = mImageReader.acquireLatestImage();
                 Log.d(TAG,"onImageAvailable image 생성");
                 if (image != null) {
-                    Image.Plane[] planes = image.getPlanes();
-                    ByteBuffer buffer = planes[0].getBuffer();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * mWidth;
-                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+//                    Image.Plane[] planes = image.getPlanes();
+//                    ByteBuffer buffer = planes[0].getBuffer();
+                    final Image.Plane[] planes = image.getPlanes();
+                    final Buffer buffer = planes[0].getBuffer().rewind();
+                    bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
                     bitmap.copyPixelsFromBuffer(buffer);
                     Log.d(TAG,"onImageAvailable bitmap 생성");
                     {
