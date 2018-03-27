@@ -116,11 +116,10 @@ public class Main2Activity extends Activity implements View.OnClickListener {
         }
         setThread();
         SoketStart();
-        findViewById(R.id.start).setOnClickListener(this);		//시작버튼
-        findViewById(R.id.end).setOnClickListener(this);			//중시버튼
-        findViewById(R.id.soket).setOnClickListener(this);			//연결
-        findViewById(R.id.soket_send).setOnClickListener(this);			//보내기
-
+        findViewById(R.id.start).setOnClickListener(this);          //시작버튼
+        findViewById(R.id.end).setOnClickListener(this);            //중시버튼
+        findViewById(R.id.soket).setOnClickListener(this);          //연결
+        findViewById(R.id.soket_send).setOnClickListener(this);     //보내기
         new Thread() {
             @Override
             public void run() {
@@ -140,7 +139,7 @@ public class Main2Activity extends Activity implements View.OnClickListener {
             mIsBound = true;
         } else if(view == R.id.end) {
             if(mIsBound) {
-                unbindService(mConnection);    //서비스 종료
+                unbindService(mConnection);
             }
         } else if(view == R.id.soket) {
             SoketClose();
@@ -224,8 +223,6 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     }
 
     private void stopProjection() {
-        //projection을 종료 합니다. stop()! mediaprojection callback의
-        //onstop method가 호출 되겠네요.
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -290,29 +287,16 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     }
 
     private class OrientationChangeCallback extends OrientationEventListener {
-        //생성자가 필히 요구 됩니다.
         public OrientationChangeCallback(Context context) {
             super(context);
         }
         @Override
         public void onOrientationChanged(int orientation) {
             synchronized (this) {
-                //화면 전환으로 인해서 virtualdisplay를 새로만드는 과정이니 동기화 시켜주고
                 final int rotation = mDisplay.getRotation();
-
-                //rotation값이다르다면
                 if (rotation != mRotation) {
                     mRotation = rotation;
                     try {
-                        /*
-                        virtualdisplay를 release 해주고 imagereader의 이벤트도 빼버리고 그런데
-                        imagereader 이벤트 빼고나서 null로 주어야되지않나? 알아서 가비지컬렉터가
-                        메모리 해제해주는지 모르겠네요. newInstance로 새롭게 객체 만들텐데
-                        쨋든 그러고나서 createVirtualDisplay로 virtualdisplay 새로 생성
-                        */
-                        if (mVirtualDisplay != null) mVirtualDisplay.release();
-                        if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
-
                         createVirtualDisplay();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -449,11 +433,9 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     }
 
     private final class ServiceHandler extends Handler {
-
         public ServiceHandler(Looper looper) {
             super(looper);
         }
-
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -486,11 +468,9 @@ public class Main2Activity extends Activity implements View.OnClickListener {
         Boolean loop;
         SocketAddress socketAddress;
         private final int connection_timeout = 3000;
-
         public TCPClient(String ip, int port) throws RuntimeException {
             socketAddress = new InetSocketAddress(ip, port);
         }
-
         @Override
         public void run() {
             try {
@@ -515,7 +495,7 @@ public class Main2Activity extends Activity implements View.OnClickListener {
             while (loop) {
                 try {
                     line = networkReader.readLine();
-                    if (line == null) //서버에서 FIN 패킷을 보내면 null을 반환한다.
+                    if (line == null)
                         break;
                     Runnable showUpdate = new Runnable() {
                         @Override
@@ -581,9 +561,6 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     private void SoketStart() {
         final String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
         if(!"".equals(ip)) {
-            /**
-             * 소켓 통신 세팅
-             */
             try {
                 client = new TCPClient(ip, 9999);
                 client.start();
@@ -594,7 +571,7 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     }
 
     private void SoketClose() {
-        if (client != null) {  //소켓과 스레드를 모두 종료시킨다.
+        if (client != null) {
             Message msg = mServiceHandler.obtainMessage();
             msg.what = MSG_STOP;
             mServiceHandler.sendMessage(msg);
@@ -608,7 +585,6 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     private void setThread() {
         thread = new HandlerThread("HandlerThread");
         thread.start();
-        // 루퍼를 만든다.
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
         mMainHandler = new Handler() {
