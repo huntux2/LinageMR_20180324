@@ -80,6 +80,7 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     private Handler mHandler;
     private OrientationChangeCallback mOrientationChangeCallback;
     private int mRotation;
+    private boolean flag_stop ;
 
     /**
      * 소켓 변수
@@ -329,61 +330,62 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                 image = mImageReader.acquireLatestImage();
                 Log.d(TAG,"onImageAvailable image 생성");
                 if (image != null) {
-//                    if(flag_stop) {
-//                        new Handler().postDelayed(new Runnable() {// 1 초 후에 실행
-//                            @Override public void run() { // 실행할 동작 코딩
-//                                flag_stop = false;
-//                            }
-//                        }, 250);
-//                    }
-//                    flag_stop = true;
-                    final Image.Plane[] planes = image.getPlanes();
-                    final Buffer buffer = planes[0].getBuffer().rewind();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * mWidth;
-                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                    bitmap.copyPixelsFromBuffer(buffer);
+                    if(flag_stop) {
+                        new Handler().postDelayed(new Runnable() {// 1 초 후에 실행
+                            @Override public void run() { // 실행할 동작 코딩
+                                flag_stop = false;
+                            }
+                        }, 1000);
+                    } else {
+                        flag_stop = true;
+                        final Image.Plane[] planes = image.getPlanes();
+                        final Buffer buffer = planes[0].getBuffer().rewind();
+                        int pixelStride = planes[0].getPixelStride();
+                        int rowStride = planes[0].getRowStride();
+                        int rowPadding = rowStride - pixelStride * mWidth;
+                        bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                        bitmap.copyPixelsFromBuffer(buffer);
 
-                    Log.d(TAG,"onImageAvailable bitmap 생성");
-                    {
-                        int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(180,getApplicationContext());
-                        if(rank==1) {
-                            x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
-                            y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                        Log.d(TAG,"onImageAvailable bitmap 생성");
+                        {
+                            int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
+                            int y = AndroidUtils.DPFromPixel(180,getApplicationContext());
+                            if(rank==1) {
+                                x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
+                                y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                            }
+                            pixelSearch(bitmap, x, y,"app_log_1");
                         }
-                        pixelSearch(bitmap, x, y,"app_log_1");
-                    }
 
-                    {
-                        int x = AndroidUtils.DPFromPixel(64,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(231,getApplicationContext());
-                        if(rank==2) {
-                            x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
-                            y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                        {
+                            int x = AndroidUtils.DPFromPixel(64,getApplicationContext());
+                            int y = AndroidUtils.DPFromPixel(231,getApplicationContext());
+                            if(rank==2) {
+                                x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
+                                y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                            }
+                            pixelSearch(bitmap, x, y,"app_log_2");
                         }
-                        pixelSearch(bitmap, x, y,"app_log_2");
-                    }
 
-                    {
-                        int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(270,getApplicationContext());
-                        if(rank==3) {
-                            x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
-                            y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                        {
+                            int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
+                            int y = AndroidUtils.DPFromPixel(270,getApplicationContext());
+                            if(rank==3) {
+                                x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
+                                y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                            }
+                            pixelSearch(bitmap, x, y,"app_log_3");
                         }
-                        pixelSearch(bitmap, x, y,"app_log_3");
-                    }
 
-                    {
-                        int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(314,getApplicationContext());
-                        if(rank==4) {
-                            x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
-                            y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                        {
+                            int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
+                            int y = AndroidUtils.DPFromPixel(314,getApplicationContext());
+                            if(rank==4) {
+                                x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
+                                y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                            }
+                            pixelSearch(bitmap, x, y,"app_log_4");
                         }
-                        pixelSearch(bitmap, x, y,"app_log_4");
                     }
                 }
             } catch (Exception e) {
@@ -636,6 +638,7 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                         break;
                     case MSG_TEST:
                         Log.d(TAG,"MSG_TEST"+" "+"시작");
+                        flag_stop = false;
                         createVirtualDisplay();
                         mOrientationChangeCallback = new OrientationChangeCallback(Main2Activity.this);
                         if (mOrientationChangeCallback.canDetectOrientation()) {
