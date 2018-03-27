@@ -45,6 +45,8 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
@@ -96,6 +98,8 @@ public class Main2Activity extends Activity implements View.OnClickListener {
     private final int MSG_START = 3;
     private final int MSG_STOP = 4;
     private final int MSG_ERROR = 5;
+    private final int MSG_TEST = 6;
+    private final int MSG_TEST2 = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,21 +245,28 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                 return;
             }
             sMediaProjection = mProjectionManager.getMediaProjection(resultCode, data);
-            if (sMediaProjection != null) {
-                createVirtualDisplay();
-            }
-            mOrientationChangeCallback = new OrientationChangeCallback(this);
-            if (mOrientationChangeCallback.canDetectOrientation()) {
-                mOrientationChangeCallback.enable();
-            }
-            sMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
+
+            Message toMain = mMainHandler.obtainMessage();
+            toMain.what = MSG_TEST;
+            mMainHandler.sendMessage(toMain);
+
+//            if (sMediaProjection != null) {
+//                TimerTask adTast = new TimerTask() {
+//                    public void run() {
+//                        Message toMain = mMainHandler.obtainMessage();
+//                        toMain.what = MSG_TEST;
+//                        mMainHandler.sendMessage(toMain);
+//                    }
+//                };
+//                Timer timer = new Timer();
+//                timer.schedule(adTast, 0, 5000); // 0초후 첫실행, 3초마다 계속실행
+////                createVirtualDisplay();
+//            }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void createVirtualDisplay() {
-        if (mVirtualDisplay != null) mVirtualDisplay.release();
-        if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         mDensity = metrics.densityDpi;
         mDisplay = getWindowManager().getDefaultDisplay();
@@ -297,7 +308,9 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                 if (rotation != mRotation) {
                     mRotation = rotation;
                     try {
-                        createVirtualDisplay();
+//                        Message toMain = mMainHandler.obtainMessage();
+//                        toMain.what = MSG_TEST;
+//                        mMainHandler.sendMessage(toMain);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -426,6 +439,10 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                 Log.d(TAG, "pixelSearch"+" "+"마을세이프티"+" "+"맞음"+" "+file_name+"x :"+x+" "+"y :"+y+" "+" "+"A :"+A+" "+"R :"+R_+" "+"G :"+G_+" "+"B :"+B_+"===>>> 귀환초기화대기중~");
             } else {
                 Log.d(TAG, "pixelSearch"+" "+"마을세이프티"+" "+"아님"+" "+file_name+"x :"+x+" "+"y :"+y+" "+" "+"A :"+A+" "+"R :"+R_+" "+"G :"+G_+" "+"B :"+B_+"===>>> 귀환~");
+                Message msg = mServiceHandler.obtainMessage();
+                msg.what = MSG_START;
+                msg.obj = file_name;
+                mServiceHandler.sendMessage(msg);
             }
         } else {
             Log.d(TAG, "pixelSearch"+" "+"캐릭명"+" "+"흰색"+" "+file_name+"x :"+x+" "+"y :"+y+" "+" "+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"===>>> 귀환준비~");
@@ -616,6 +633,36 @@ public class Main2Activity extends Activity implements View.OnClickListener {
                         m = "메세지 전송 완료!";
                         Log.d(TAG,"setThread"+" "+m);
                         ((TextView)findViewById(R.id.text_tv)).setText(m);
+                        break;
+                    case MSG_TEST:
+                        Log.d(TAG,"MSG_TEST"+" "+"시작");
+                        createVirtualDisplay();
+                        mOrientationChangeCallback = new OrientationChangeCallback(Main2Activity.this);
+                        if (mOrientationChangeCallback.canDetectOrientation()) {
+                            mOrientationChangeCallback.enable();
+                        }
+                        sMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
+                        new Handler().postDelayed(new Runnable() {// 1 초 후에 실행
+                            @Override
+                            public void run() { // 실행할 동작 코딩
+                                Message toMain = mMainHandler.obtainMessage();
+                                toMain.what = MSG_TEST2;
+                                mMainHandler.sendMessage(toMain);
+                            }
+                        }, 10000);
+                        break;
+                    case MSG_TEST2:
+                        Log.d(TAG,"MSG_TEST2"+" "+"스톱");
+                        if (mVirtualDisplay != null) mVirtualDisplay.release();
+                        if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
+                        new Handler().postDelayed(new Runnable() {// 1 초 후에 실행
+                            @Override
+                            public void run() { // 실행할 동작 코딩
+                                Message toMain = mMainHandler.obtainMessage();
+                                toMain.what = MSG_TEST;
+                                mMainHandler.sendMessage(toMain);
+                            }
+                        }, 2500);
                         break;
                     default:
                         Log.d(TAG, (String) msg.obj);
