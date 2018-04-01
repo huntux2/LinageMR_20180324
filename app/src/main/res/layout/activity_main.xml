@@ -47,6 +47,13 @@
             android:text="연결" />
 
         <Button
+            android:id="@+id/soket_end"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="종료" />
+
+        <Button
             android:id="@+id/soket_send"
             android:layout_width="0dp"
             android:layout_height="50dp"

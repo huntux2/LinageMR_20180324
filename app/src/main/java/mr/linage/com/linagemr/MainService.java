@@ -43,10 +43,12 @@ public class MainService extends Service {
 	private Button btn_down;								//아래 이동 버튼
 	private Button btn_left;								//왼쪽 이동 버튼
 	private Button btn_right;								//오른쪽 이동 버튼
+	private Button btn_send_stop;						//전송 제어 버튼
 	int cnt = 1;
 	int rank = 1;
 	int x = 54;
 	int y = 180;
+	boolean flag = true;
 
 	private float START_X, START_Y;							//움직이기 위해 터치한 시작 점
 	private int PREV_X, PREV_Y;								//움직이기 이전에 뷰가 위치한 점
@@ -217,8 +219,8 @@ public class MainService extends Service {
 					y = 270;
 				}
 				if(rank==4) {
-					x = 54;
-					y = 314;
+					x = 114;
+					y = 329;
 				}
 				sendMsgToActivity(x, y);
 				btn_num.setText(rank+"");
@@ -305,6 +307,24 @@ public class MainService extends Service {
 			}
 		});
 
+		btn_send_stop = new Button(this);		//투명도 조절 seek bar
+		btn_send_stop.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
+		btn_send_stop.setText("전송중");
+		btn_send_stop.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if("전송중".equals(btn_send_stop.getText())) {
+					btn_send_stop.setText("스톱중");
+					flag = false;
+					sendMsgToActivity(x, y);
+				} else {
+					btn_send_stop.setText("전송중");
+					flag = true;
+					sendMsgToActivity(x, y);
+				}
+			}
+		});
+
 		parentLL = new LinearLayout(this);
 		parentLL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 		parentLL.setOrientation(LinearLayout.HORIZONTAL);
@@ -318,6 +338,7 @@ public class MainService extends Service {
 		parentRR.setOrientation(LinearLayout.HORIZONTAL);
 		parentRR.addView(btn_num);
 		parentRR.addView(btn_cnt);
+		parentRR.addView(btn_send_stop);
 
 		parentPP = new LinearLayout(this);
 		parentPP.setLayoutParams(new LinearLayout.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT));
@@ -407,6 +428,7 @@ public class MainService extends Service {
 			bundle.putInt("x", x);
 			bundle.putInt("y", y);
 			bundle.putInt("rank", rank);
+			bundle.putSerializable("sending", flag);
 			Message msg = Message.obtain(null, MSG_SEND_TO_ACTIVITY);
 			msg.setData(bundle);
 			mClient.send(msg);      // msg 보내기
