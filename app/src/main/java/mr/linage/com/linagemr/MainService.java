@@ -44,6 +44,8 @@ public class MainService extends Service {
 	private Button btn_left;								//왼쪽 이동 버튼
 	private Button btn_right;								//오른쪽 이동 버튼
 	private Button btn_send_stop;						//전송 제어 버튼
+	private Button btn_send_mode;						//전송 제어 버튼
+	int mode_num = 1;
 	int cnt = 1;
 	int rank = 1;
 	int x = 54;
@@ -316,12 +318,26 @@ public class MainService extends Service {
 				if("전송중".equals(btn_send_stop.getText())) {
 					btn_send_stop.setText("스톱중");
 					flag = false;
-					sendMsgToActivity(x, y);
 				} else {
 					btn_send_stop.setText("전송중");
 					flag = true;
-					sendMsgToActivity(x, y);
 				}
+				sendMsgToActivity(x, y);
+			}
+		});
+
+		btn_send_mode = new Button(this);		//투명도 조절 seek bar
+		btn_send_mode.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
+		btn_send_mode.setText(mode_num+"");
+		btn_send_mode.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				mode_num++;
+				if(mode_num>4) {
+					mode_num = 1;
+				}
+				btn_send_mode.setText(mode_num+"");
+				sendMsgToActivity(x, y);
 			}
 		});
 
@@ -339,6 +355,7 @@ public class MainService extends Service {
 		parentRR.addView(btn_num);
 		parentRR.addView(btn_cnt);
 		parentRR.addView(btn_send_stop);
+		parentRR.addView(btn_send_mode);
 
 		parentPP = new LinearLayout(this);
 		parentPP.setLayoutParams(new LinearLayout.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT));
@@ -429,6 +446,7 @@ public class MainService extends Service {
 			bundle.putInt("y", y);
 			bundle.putInt("rank", rank);
 			bundle.putSerializable("sending", flag);
+			bundle.putInt("mode_num", mode_num);
 			Message msg = Message.obtain(null, MSG_SEND_TO_ACTIVITY);
 			msg.setData(bundle);
 			mClient.send(msg);      // msg 보내기

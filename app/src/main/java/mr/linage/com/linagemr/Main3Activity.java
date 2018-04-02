@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -37,6 +38,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.Buffer;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
 
@@ -53,6 +57,7 @@ public class Main3Activity extends Activity implements View.OnClickListener {
     private int p_y = 180;
     private int rank = 1;
     private boolean sending = true;
+    private int mode_num = 1;
 
     /**
      * 녹화 변수
@@ -79,10 +84,11 @@ public class Main3Activity extends Activity implements View.OnClickListener {
      * 기타
      */
     private long id = 0;
-    int flag_1 = 0;
-    int flag_2 = 0;
-    int flag_3 = 0;
-    int flag_4 = 0;
+    private int flag_1 = 0;
+    private int flag_2 = 0;
+    private int flag_3 = 0;
+    private int flag_4 = 0;
+    private boolean flag_stop = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,14 +174,17 @@ public class Main3Activity extends Activity implements View.OnClickListener {
                     int y = msg.getData().getInt("y");
                     int _rank = msg.getData().getInt("rank");
                     boolean _sending = (boolean)msg.getData().getSerializable("sending");
+                    int _mode_num = msg.getData().getInt("mode_num");
                     Log.i("test","act : x :"+x);
                     Log.i("test","act : y :"+y);
                     Log.i("test","act : rank :"+_rank);
                     Log.i("test","act : sending :"+_sending);
+                    Log.i("test","act : mode_num :"+_mode_num);
                     p_x = x;
                     p_y = y;
                     rank = _rank;
                     sending = _sending;
+                    mode_num = _mode_num;
                     break;
             }
             return false;
@@ -239,55 +248,78 @@ public class Main3Activity extends Activity implements View.OnClickListener {
             try {
                 image = imageReader.acquireLatestImage();
                 Log.d(TAG,"onImageAvailable image 생성");
-                if (image != null) {
-                    final Image.Plane[] planes = image.getPlanes();
-                    final Buffer buffer = planes[0].getBuffer().rewind();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * mWidth;
-                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                    bitmap.copyPixelsFromBuffer(buffer);
-
-                    Log.d(TAG,"onImageAvailable bitmap 생성");
-                    {
-                        int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(180,getApplicationContext());
-                        if(rank==1) {
-                            x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
-                            y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                if(flag_stop) {
+                    Log.d(TAG,"onImageAvailable image flag_stop");
+                } else {
+                    flag_stop = true;
+                    Log.d(TAG,"onImageAvailable image flag_stop:"+flag_stop);
+                    TimerTask mTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            flag_stop = false;
+                            Log.d(TAG,"onImageAvailable image flag_stop:"+flag_stop);
                         }
-                        pixelSearch(bitmap, x, y,"app_log_1");
-                    }
+                    };
+                    Timer mTimer = new Timer();
+                    mTimer.schedule(mTask,1000);
+                    if (image != null) {
+                        final Image.Plane[] planes = image.getPlanes();
+                        final Buffer buffer = planes[0].getBuffer().rewind();
+                        int pixelStride = planes[0].getPixelStride();
+                        int rowStride = planes[0].getRowStride();
+                        int rowPadding = rowStride - pixelStride * mWidth;
+                        bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                        bitmap.copyPixelsFromBuffer(buffer);
 
-                    {
-                        int x = AndroidUtils.DPFromPixel(64,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(231,getApplicationContext());
-                        if(rank==2) {
-                            x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
-                            y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                        Log.d(TAG,"onImageAvailable bitmap 생성");
+                        {
+                            if(mode_num>=1) {
+                                int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
+                                int y = AndroidUtils.DPFromPixel(180,getApplicationContext());
+                                if(rank==1) {
+                                    x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
+                                    y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                                }
+                                pixelSearch(bitmap, x, y,"app_log_1");
+                            }
                         }
-                        pixelSearch(bitmap, x, y,"app_log_2");
-                    }
 
-                    {
-                        int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(270,getApplicationContext());
-                        if(rank==3) {
-                            x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
-                            y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                        {
+                            if(mode_num>=2) {
+                                int x = AndroidUtils.DPFromPixel(64,getApplicationContext());
+                                int y = AndroidUtils.DPFromPixel(231,getApplicationContext());
+                                if(rank==2) {
+                                    x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
+                                    y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                                }
+                                pixelSearch(bitmap, x, y,"app_log_2");
+                            }
                         }
-                        pixelSearch(bitmap, x, y,"app_log_3");
-                    }
 
-                    {
-                        //54, 314 : 114, 329
-                        int x = AndroidUtils.DPFromPixel(114,getApplicationContext());
-                        int y = AndroidUtils.DPFromPixel(329,getApplicationContext());
-                        if(rank==4) {
-                            x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
-                            y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                        {
+                            if(mode_num>=3) {
+                                int x = AndroidUtils.DPFromPixel(54,getApplicationContext());
+                                int y = AndroidUtils.DPFromPixel(270,getApplicationContext());
+                                if(rank==3) {
+                                    x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
+                                    y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                                }
+                                pixelSearch(bitmap, x, y,"app_log_3");
+                            }
                         }
-                        pixelSearch(bitmap, x, y,"app_log_4");
+
+                        {
+                            if(mode_num>=4) {
+                                //54, 314 : 114, 329
+                                int x = AndroidUtils.DPFromPixel(114,getApplicationContext());
+                                int y = AndroidUtils.DPFromPixel(329,getApplicationContext());
+                                if(rank==4) {
+                                    x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
+                                    y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
+                                }
+                                pixelSearch(bitmap, x, y,"app_log_4");
+                            }
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -404,6 +436,7 @@ public class Main3Activity extends Activity implements View.OnClickListener {
                 }
             } catch (RuntimeException e) {
                 Log.d(TAG, "에러 발생", e);
+                SoketClose();
             }
         }
     }
@@ -431,8 +464,11 @@ public class Main3Activity extends Activity implements View.OnClickListener {
                 networkWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
                 Log.d(TAG,"setThread"+" "+"정상적으로 서버에 접속하였습니다.");
+                setUiText("정상적으로 서버에 접속하였습니다.");
             } catch (Exception e) {
                 Log.d(TAG,"setThread"+" "+"소켓을 생성하지 못했습니다.");
+                setUiText("소켓을 생성하지 못했습니다.");
+                quit();
             }
         }
 
@@ -446,9 +482,11 @@ public class Main3Activity extends Activity implements View.OnClickListener {
                     socket.close();
                     socket = null;
                     Log.d(TAG,"setThread"+" "+"접속을 중단합니다.");
+                    setUiText("접속을 중단합니다.");
                 }
             } catch (IOException e) {
                 Log.d(TAG, "에러 발생", e);
+                setUiText("에러 발생");
             }
         }
     }
@@ -463,8 +501,18 @@ public class Main3Activity extends Activity implements View.OnClickListener {
                 }
             } catch (Exception e) {
                 Log.d(TAG, "에러 발생", e);
+                SoketClose();
             }
         }
+    }
+
+    public void setUiText(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((TextView)findViewById(R.id.text_tv)).setText(text);
+            }
+        });
     }
 
 }
