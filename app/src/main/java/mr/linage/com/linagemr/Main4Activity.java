@@ -114,7 +114,7 @@ public class Main4Activity extends Activity implements View.OnClickListener {
                     int R_ = Color.red(rgb); //red값 추출
                     int G_ = Color.green(rgb); //green값 추출
                     int B_ = Color.blue(rgb); //blue값 추출
-
+                    Log.d(TAG, "pixelSearch"+" "+" "+"x :"+x+" "+"y :"+y+" "+" "+"A :"+A_+" "+"R :"+R_+" "+"G :"+G_+" "+"B :"+B_);
                     findViewById(R.id.button_b).setBackgroundColor(Color.argb(A_, R_, G_, B_));
                     ((ImageView)findViewById(R.id.image_iv)).setImageBitmap(bitmap);
                 }
