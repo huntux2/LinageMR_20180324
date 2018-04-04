@@ -48,8 +48,8 @@ public class MainService extends Service {
 	int mode_num = 1;
 	int cnt = 1;
 	int rank = 1;
-	int x = 54;
-	int y = 180;
+	int x = 57;
+	int y = 175;
 	boolean flag = true;
 
 	private float START_X, START_Y;							//움직이기 위해 터치한 시작 점
@@ -209,19 +209,19 @@ public class MainService extends Service {
 					rank = 1;
 				}
 				if(rank==1) {
-					x = 54;
-					y = 180;
+					x = 57;
+					y = 175;
 				}
 				if(rank==2) {
-					x = 64;
-					y = 231;
+					x = 57;
+					y = 222;
 				}
 				if(rank==3) {
-					x = 54;
+					x = 57;
 					y = 270;
 				}
 				if(rank==4) {
-					x = 114;
+					x = 117;
 					y = 329;
 				}
 				sendMsgToActivity(x, y);
