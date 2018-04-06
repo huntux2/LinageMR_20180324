@@ -1,10 +1,12 @@
 package mr.linage.com.linagemr;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
@@ -18,6 +20,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -84,15 +89,66 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(this)) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-                startActivityForResult(intent, 1234);
+                startActivityForResult(intent, 1);
+            } else {
+                if (ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                } else {
+                    findViewById(R.id.start).setOnClickListener(this);          //시작버튼
+                    findViewById(R.id.end).setOnClickListener(this);            //중시버튼
+                    findViewById(R.id.soket).setOnClickListener(this);          //연결
+                    findViewById(R.id.soket_end).setOnClickListener(this);      //종료
+                    findViewById(R.id.soket_send).setOnClickListener(this);     //보내기
+                    SoketStart();
+                }
+            }
+        } else {
+            findViewById(R.id.start).setOnClickListener(this);          //시작버튼
+            findViewById(R.id.end).setOnClickListener(this);            //중시버튼
+            findViewById(R.id.soket).setOnClickListener(this);          //연결
+            findViewById(R.id.soket_end).setOnClickListener(this);      //종료
+            findViewById(R.id.soket_send).setOnClickListener(this);     //보내기
+            SoketStart();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (Build.VERSION.SDK_INT >= 23) {
+            if(requestCode==1) {
+                if (!Settings.canDrawOverlays(this)) {
+                    Log.d(TAG, "ACTION_MANAGE_OVERLAY_PERMISSION 권한 종료");
+                    finish();
+                } else {
+                    Log.d(TAG, "ACTION_MANAGE_OVERLAY_PERMISSION 권한 획득");
+                    if (ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                    }
+                }
             }
         }
-        findViewById(R.id.start).setOnClickListener(this);          //시작버튼
-        findViewById(R.id.end).setOnClickListener(this);            //중시버튼
-        findViewById(R.id.soket).setOnClickListener(this);          //연결
-        findViewById(R.id.soket_end).setOnClickListener(this);      //종료
-        findViewById(R.id.soket_send).setOnClickListener(this);     //보내기
-        SoketStart();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (Build.VERSION.SDK_INT >= 23) {
+            if(requestCode==1) {
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "READ_EXTERNAL_STORAGE 권한 종료");
+                    finish();
+                } else {
+                    Log.d(TAG, "READ_EXTERNAL_STORAGE 권한 획득");
+                    findViewById(R.id.start).setOnClickListener(this);          //시작버튼
+                    findViewById(R.id.end).setOnClickListener(this);            //중시버튼
+                    findViewById(R.id.soket).setOnClickListener(this);          //연결
+                    findViewById(R.id.soket_end).setOnClickListener(this);      //종료
+                    findViewById(R.id.soket_send).setOnClickListener(this);     //보내기
+                    SoketStart();
+                }
+            }
+        }
     }
 
     public void searchStart() {
