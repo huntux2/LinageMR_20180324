@@ -296,7 +296,15 @@ public class Main5Activity extends Activity implements View.OnClickListener {
          */
         if(flag) {
             Log.d(TAG,"pixelSearch"+" "+"캐릭명"+" "+"빨강"+" "+file_name+" "+"x :"+x+" "+"y :"+y+" "+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
-            if("app_log_2".equals(file_name)) {
+            if("app_log_1".equals(file_name)) {
+                if(flag_1==0) {
+                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                    setLog(file_name);
+                } else {
+                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                }
+                flag_1++;
+            } else if("app_log_2".equals(file_name)) {
                 if(flag_2==0) {
                     Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
                     setLog(file_name);
@@ -443,7 +451,10 @@ public class Main5Activity extends Activity implements View.OnClickListener {
 
     public void search() {
         try {
-            //adb -s ce12160cfb8a5f3504 shell screenrecord --time-limit 1 --verbose /sdcard/screenrecord-sample.mp4
+            //http://www.dreamy.pe.kr/zbxe/CodeClip/163979
+            //https://android.googlesource.com/platform/frameworks/av/+/kitkat-release/cmds/screenrecord/
+            ///dev/graphics/fb0
+            //adb -s ce12160cfb8a5f3504 shell screenrecord --time-limit 1 --verbose /sdcard/screenrecord-sample.mp4 && adb -s 192.168.0.9 pull /sdcard/screenrecord-sample0.mp4
             videoFile = new File(Environment.getExternalStorageDirectory() + "/screenrecord-sample.mp4");
             if(videoFile.exists()) {
                 retriever = new MediaMetadataRetriever();
