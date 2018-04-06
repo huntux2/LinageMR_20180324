@@ -7,16 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.PixelFormat;
-import android.graphics.Point;
-import android.hardware.display.DisplayManager;
-import android.hardware.display.VirtualDisplay;
-import android.media.Image;
-import android.media.ImageReader;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
-import android.media.projection.MediaProjection;
-import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,12 +18,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.Settings;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.BufferedWriter;
@@ -42,7 +30,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.nio.Buffer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -106,18 +93,27 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         findViewById(R.id.soket_end).setOnClickListener(this);      //종료
         findViewById(R.id.soket_send).setOnClickListener(this);     //보내기
         SoketStart();
-        tt = new TimerTask() {
+    }
+
+    public void searchStart() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    search();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                while (true) {
+                    try {
+                        if(client==null) {
+                            Log.d(TAG, "search 쓰레드 종료");
+                            break;
+                        }
+                        Log.d(TAG, "search 쓰레드 중~");
+                        Thread.sleep(500);
+                        search();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        };
-        Timer t = new Timer();
-        t.schedule(tt,0, 500);
+        }).start();
     }
 
     @Override
@@ -399,6 +395,7 @@ public class Main5Activity extends Activity implements View.OnClickListener {
                 String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
                 Log.d(TAG,"setThread"+" "+"정상적으로 서버에 접속하였습니다.");
                 setUiText("정상적으로 서버에 접속하였습니다.");
+                searchStart();
             } catch (Exception e) {
                 Log.d(TAG,"setThread"+" "+"소켓을 생성하지 못했습니다.");
                 setUiText("소켓을 생성하지 못했습니다.");
@@ -417,6 +414,9 @@ public class Main5Activity extends Activity implements View.OnClickListener {
                     socket = null;
                     Log.d(TAG,"setThread"+" "+"접속을 중단합니다.");
                     setUiText("접속을 중단합니다.");
+                }
+                if(client != null) {
+                    client = null;
                 }
             } catch (IOException e) {
                 Log.d(TAG, "에러 발생", e);
@@ -460,14 +460,16 @@ public class Main5Activity extends Activity implements View.OnClickListener {
                 retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(videoFile.toString());
                 bitmap = retriever.getFrameAtTime(-1);
-                final Bitmap copyBitmap = bitmap.copy(bitmap.getConfig(),true);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(copyBitmap!=null)
-                            bitmap(copyBitmap);
-                    }
-                }).start();
+                if(bitmap!=null) {
+                    final Bitmap copyBitmap = bitmap.copy(bitmap.getConfig(),true);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(copyBitmap!=null)
+                                bitmap(copyBitmap);
+                        }
+                    }).start();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -478,6 +480,7 @@ public class Main5Activity extends Activity implements View.OnClickListener {
             }
             if(retriever!=null) {
                 retriever.release();
+                retriever = null;
             }
         }
     }
