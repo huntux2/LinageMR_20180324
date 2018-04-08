@@ -26,6 +26,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import mr.linage.com.common.Config;
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
 
@@ -45,11 +46,12 @@ public class MainService extends Service {
 	private Button btn_right;								//오른쪽 이동 버튼
 	private Button btn_send_stop;						//전송 제어 버튼
 	private Button btn_send_mode;						//전송 제어 버튼
+	private Button btn_search_target;						//전송 제어 버튼
 	int mode_num = 1;
 	int cnt = 1;
 	int rank = 1;
-	int x = 57;
-	int y = 175;
+	int x = Config.x1;
+	int y = Config.y1;
 	boolean flag = true;
 
 	private float START_X, START_Y;							//움직이기 위해 터치한 시작 점
@@ -209,20 +211,20 @@ public class MainService extends Service {
 					rank = 1;
 				}
 				if(rank==1) {
-					x = 57;
-					y = 175;
+					x = Config.x1;
+					y = Config.y1;
 				}
 				if(rank==2) {
-					x = 57;
-					y = 222;
+					x = Config.x2;
+					y = Config.y2;
 				}
 				if(rank==3) {
-					x = 57;
-					y = 270;
+					x = Config.x3;
+					y = Config.y3;
 				}
 				if(rank==4) {
-					x = 117;
-					y = 329;
+					x = Config.x4;
+					y = Config.y4;
 				}
 				sendMsgToActivity(x, y);
 				btn_num.setText(rank+"");
@@ -253,7 +255,7 @@ public class MainService extends Service {
 
 		btn_down = new Button(this);		//투명도 조절 seek bar
 		btn_down.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
-		btn_down.setText("아래");
+		btn_down.setText("아");
 		btn_down.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -341,6 +343,25 @@ public class MainService extends Service {
 			}
 		});
 
+		btn_search_target = new Button(this);		//투명도 조절 seek bar
+		btn_search_target.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
+		btn_search_target.setText(Config.flag_search_app.split("_")[2]);
+		btn_search_target.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if(Config.flag_search_app.equals("app_log_1")) {
+					Config.flag_search_app = "app_log_2";
+				} else if(Config.flag_search_app.equals("app_log_2")) {
+					Config.flag_search_app = "app_log_3";
+				} else if(Config.flag_search_app.equals("app_log_3")) {
+					Config.flag_search_app = "app_log_4";
+				} else if(Config.flag_search_app.equals("app_log_4")) {
+					Config.flag_search_app = "app_log_1";
+				}
+				btn_search_target.setText(Config.flag_search_app.split("_")[2]);
+			}
+		});
+
 		parentLL = new LinearLayout(this);
 		parentLL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 		parentLL.setOrientation(LinearLayout.HORIZONTAL);
@@ -356,6 +377,7 @@ public class MainService extends Service {
 		parentRR.addView(btn_cnt);
 		parentRR.addView(btn_send_stop);
 		parentRR.addView(btn_send_mode);
+		parentRR.addView(btn_search_target);
 
 		parentPP = new LinearLayout(this);
 		parentPP.setLayoutParams(new LinearLayout.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT));
@@ -450,6 +472,22 @@ public class MainService extends Service {
 			Message msg = Message.obtain(null, MSG_SEND_TO_ACTIVITY);
 			msg.setData(bundle);
 			mClient.send(msg);      // msg 보내기
+			if(rank==1) {
+				Config.x1 = x;
+				Config.y1 = y;
+			}
+			if(rank==2) {
+				Config.x2 = x;
+				Config.y2 = y;
+			}
+			if(rank==3) {
+				Config.x3 = x;
+				Config.y3 = y;
+			}
+			if(rank==4) {
+				Config.x4 = x;
+				Config.y4 = y;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

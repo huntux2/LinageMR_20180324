@@ -28,20 +28,22 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.Timer;
 import java.util.TimerTask;
 
+import mr.linage.com.common.Config;
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
 
-public class Main5Activity extends Activity implements View.OnClickListener {
+public class Main7Activity extends Activity implements View.OnClickListener {
 
     private String TAG = getClass().getSimpleName().trim();
 
@@ -50,8 +52,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
      */
     private boolean mIsBound;
     private Messenger mServiceMessenger = null;
-    private int p_x = 57;
-    private int p_y = 175;
+    private int p_x = 0;
+    private int p_y = 0;
     private int rank = 1;
     private boolean sending = true;
     private int mode_num = 1;
@@ -70,6 +72,7 @@ public class Main5Activity extends Activity implements View.OnClickListener {
     private Socket socket;
     private TCPClient client;
     private BufferedWriter networkWriter;
+    private BufferedReader networkReader;
 
     /**
      * 기타
@@ -81,10 +84,32 @@ public class Main5Activity extends Activity implements View.OnClickListener {
     private int flag_4 = 0;
     private boolean flag_stop = false;
 
+    public void setConfig() {
+        /**
+         * 에뮬레이터
+         * y 64 증가
+         */
+        Config.x1 = 76;
+        Config.y1 = 231;
+
+        Config.x2 = 76;
+        Config.y2 = 295;
+
+        Config.x3 = 76;
+        Config.y3 = 359;
+
+        Config.x4 = 71;
+        Config.y4 = 378;
+
+        p_x = Config.x1;
+        p_y = Config.y1;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG,"onCreate");
         super.onCreate(savedInstanceState);
+        setConfig();
         setContentView(R.layout.activity_main);
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(this)) {
@@ -167,6 +192,17 @@ public class Main5Activity extends Activity implements View.OnClickListener {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                }
+            }
+        }).start();
+    }
+
+    public void searchStartOne() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(client!=null) {
+                    search();
                 }
             }
         }).start();
@@ -268,8 +304,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         Log.d(TAG,"onImageAvailable bitmap 생성");
         {
             if(mode_num>=1) {
-                int x = AndroidUtils.DPFromPixel(57,getApplicationContext());
-                int y = AndroidUtils.DPFromPixel(175,getApplicationContext());
+                int x = AndroidUtils.DPFromPixel(Config.x1,getApplicationContext());
+                int y = AndroidUtils.DPFromPixel(Config.y1,getApplicationContext());
                 if(rank==1) {
                     x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                     y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
@@ -280,8 +316,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
 
         {
             if(mode_num>=2) {
-                int x = AndroidUtils.DPFromPixel(57,getApplicationContext());
-                int y = AndroidUtils.DPFromPixel(222,getApplicationContext());
+                int x = AndroidUtils.DPFromPixel(Config.x2,getApplicationContext());
+                int y = AndroidUtils.DPFromPixel(Config.y2,getApplicationContext());
                 if(rank==2) {
                     x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                     y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
@@ -292,8 +328,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
 
         {
             if(mode_num>=3) {
-                int x = AndroidUtils.DPFromPixel(57,getApplicationContext());
-                int y = AndroidUtils.DPFromPixel(270,getApplicationContext());
+                int x = AndroidUtils.DPFromPixel(Config.x3,getApplicationContext());
+                int y = AndroidUtils.DPFromPixel(Config.y3,getApplicationContext());
                 if(rank==3) {
                     x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                     y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
@@ -305,8 +341,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         {
             if(mode_num>=4) {
                 //54, 314 : 114, 329
-                int x = AndroidUtils.DPFromPixel(117,getApplicationContext());
-                int y = AndroidUtils.DPFromPixel(332,getApplicationContext());
+                int x = AndroidUtils.DPFromPixel(Config.x4,getApplicationContext());
+                int y = AndroidUtils.DPFromPixel(Config.y4,getApplicationContext());
                 if(rank==4) {
                     x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                     y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
@@ -338,10 +374,10 @@ public class Main5Activity extends Activity implements View.OnClickListener {
             sendMessageToService(argbVo, rank);
         }
         boolean flag = false;
-        if("app_log_4".equals(file_name)) {
-            flag = !(260>R&&R>150&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+        if(Config.flag_search_app.equals(file_name)) {
+            flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
         } else {
-            flag = (260>R&&R>150&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
         }
         /**
          * 캐릭명 빨강(154,23,19)
@@ -349,31 +385,55 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         if(flag) {
             Log.d(TAG,"pixelSearch"+" "+"캐릭명"+" "+"빨강"+" "+file_name+" "+"x :"+x+" "+"y :"+y+" "+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
             if("app_log_1".equals(file_name)) {
-                if(flag_1==0) {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                if(Config.flag_search_app.equals(file_name)) {
                     setLog(file_name);
                 } else {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    if(flag_1==0) {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                        setLog(file_name);
+                    } else {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    }
+                    flag_1++;
                 }
-                flag_1++;
             } else if("app_log_2".equals(file_name)) {
-                if(flag_2==0) {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                if(Config.flag_search_app.equals(file_name)) {
                     setLog(file_name);
                 } else {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    if(flag_2==0) {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                        setLog(file_name);
+                    } else {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    }
+                    flag_2++;
                 }
-                flag_2++;
             } else if("app_log_3".equals(file_name)) {
-                if(flag_3==0) {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                if(Config.flag_search_app.equals(file_name)) {
                     setLog(file_name);
                 } else {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    if(flag_3==0) {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                        setLog(file_name);
+                    } else {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    }
+                    flag_3++;
                 }
-                flag_3++;
+            } else if("app_log_4".equals(file_name)) {
+                if(Config.flag_search_app.equals(file_name)) {
+                    setLog(file_name);
+                } else {
+                    if(flag_4==0) {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                        setLog(file_name);
+                    } else {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    }
+                    flag_4++;
+                }
             } else {
-                setLog(file_name);
+//                setLog(file_name);
             }
         } else {
             Log.d(TAG, "pixelSearch"+" "+"캐릭명"+" "+"흰색"+" "+file_name+"x :"+x+" "+"y :"+y+" "+" "+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"===>>> 귀환준비~");
@@ -420,7 +480,7 @@ public class Main5Activity extends Activity implements View.OnClickListener {
 
     public class TCPClient extends Thread {
         SocketAddress socketAddress;
-        private final int connection_timeout = 2000;
+        private final int connection_timeout = 10000;
         public TCPClient(String ip, int port) throws RuntimeException {
             socketAddress = new InetSocketAddress(ip, port);
         }
@@ -432,10 +492,10 @@ public class Main5Activity extends Activity implements View.OnClickListener {
                 socket.setSoLinger(true, 0);
                 socket.connect(socketAddress, connection_timeout);
                 networkWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                networkReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String ip = ((EditText)findViewById(R.id.soket_ip)).getText().toString();
                 Log.d(TAG,"setThread"+" "+"정상적으로 서버에 접속하였습니다.");
                 setUiText("정상적으로 서버에 접속하였습니다.");
-                searchStart();
             } catch (Exception e) {
                 Log.d(TAG,"setThread"+" "+"소켓을 생성하지 못했습니다.");
                 setUiText("소켓을 생성하지 못했습니다.");
@@ -448,6 +508,10 @@ public class Main5Activity extends Activity implements View.OnClickListener {
                 if (networkWriter != null) {
                     networkWriter.close();
                     networkWriter = null;
+                }
+                if (networkReader != null) {
+                    networkReader.close();
+                    networkReader = null;
                 }
                 if (socket != null) {
                     socket.close();
@@ -465,19 +529,37 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         }
     }
 
-    public void sendDing(String msg) {
-        if(sending) {
-            try {
-                if(networkWriter!=null) {
-                    networkWriter.write(msg);
-                    networkWriter.newLine();
-                    networkWriter.flush();
+    public void sendDing(final String msg) {
+        Log.d(TAG,"sendDing"+" "+"서버로부터 받은 데이터 sendDing");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(sending) {
+                    try {
+                        if(networkWriter!=null) {
+                            networkWriter.write(msg);
+                            networkWriter.newLine();
+                            networkWriter.flush();
+                        }
+                        if(networkReader!=null) {
+                            String receiveData = "";
+                            try {
+                                receiveData = networkReader.readLine();        // 서버로부터 데이터 한줄 읽음
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            Log.d(TAG, "서버로부터 받은 데이터 : " + receiveData);
+                            if(!"".equals(receiveData)) {
+                                searchStartOne();
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "에러 발생", e);
+                        SoketClose();
+                    }
                 }
-            } catch (Exception e) {
-                Log.d(TAG, "에러 발생", e);
-                SoketClose();
             }
-        }
+        }).start();
     }
 
     public void setUiText(final String text) {
@@ -491,38 +573,57 @@ public class Main5Activity extends Activity implements View.OnClickListener {
 
     public void search() {
         try {
-            //http://www.dreamy.pe.kr/zbxe/CodeClip/163979
-            //https://android.googlesource.com/platform/frameworks/av/+/kitkat-release/cmds/screenrecord/
-            ///dev/graphics/fb0
-            //adb -s ce12160cfb8a5f3504 shell screenrecord --time-limit 1 --verbose /sdcard/screenrecord-sample.mp4 && adb -s 192.168.0.9 pull /sdcard/screenrecord-sample0.mp4
-            videoFile = new File(Environment.getExternalStorageDirectory() + "/screenrecord-sample.mp4");
-            if(videoFile.exists()) {
-                retriever = new MediaMetadataRetriever();
-                retriever.setDataSource(videoFile.toString());
-                bitmap = retriever.getFrameAtTime(-1);
-                if(bitmap!=null) {
-                    final Bitmap copyBitmap = bitmap.copy(bitmap.getConfig(),true);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(copyBitmap!=null)
-                                bitmap(copyBitmap);
-                        }
-                    }).start();
-                }
-            }
-        } catch (Exception e) {
+            bitmap = AndroidUtils.loadBackgroundBitmap(this, Environment.getExternalStorageDirectory() + "/screen.png");
+            if(bitmap!=null)
+                bitmap(bitmap);
+        } catch(Exception e) {
             e.printStackTrace();
         } finally {
-            if(bitmap!=null) {
+            if (bitmap != null) {
                 bitmap.recycle();
                 bitmap = null;
             }
-            if(retriever!=null) {
-                retriever.release();
-                retriever = null;
-            }
+            sendDing("Hello World!");
         }
+//        boolean reStartFlag = false;
+//        try {
+//            //http://www.dreamy.pe.kr/zbxe/CodeClip/163979
+//            //https://android.googlesource.com/platform/frameworks/av/+/kitkat-release/cmds/screenrecord/
+//            ///dev/graphics/fb0
+//            //adb -s ce12160cfb8a5f3504 shell screenrecord --time-limit 1 --verbose /sdcard/screenrecord-sample.mp4 && adb -s 192.168.0.9 pull /sdcard/screenrecord-sample0.mp4
+//            videoFile = new File(Environment.getExternalStorageDirectory() + "/screenrecord-sample.mp4");
+//            if(videoFile.exists()) {
+//                retriever = new MediaMetadataRetriever();
+//                retriever.setDataSource(videoFile.toString());
+//                bitmap = retriever.getFrameAtTime(-1);
+//                if(bitmap!=null) {
+//                    final Bitmap copyBitmap = bitmap.copy(bitmap.getConfig(),true);
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            if(copyBitmap!=null)
+//                                bitmap(copyBitmap);
+//                        }
+//                    }).start();
+//                } else {
+////                    reStartFlag = true;
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            if(bitmap!=null) {
+//                bitmap.recycle();
+//                bitmap = null;
+//            }
+//            if(retriever!=null) {
+//                retriever.release();
+//                retriever = null;
+//            }
+//        }
+//        if(reStartFlag) {
+//            search();
+//        }
     }
 
 }
