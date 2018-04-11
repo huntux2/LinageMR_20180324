@@ -20,6 +20,9 @@ public class Config {
     public static int x4 = 54;
     public static int y4 = 314;
 
-    public static String flag_search_app = "app_log_4";
+    public static boolean flag_search_app_1 = false;
+    public static boolean flag_search_app_2 = false;
+    public static boolean flag_search_app_3 = false;
+    public static boolean flag_search_app_4 = false;
 
 }

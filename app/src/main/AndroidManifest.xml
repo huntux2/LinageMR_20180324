@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".Main7Activity"
+            android:name=".Main5Activity"
             android:launchMode="singleTask"
             android:configChanges="orientation"
             android:screenOrientation="landscape">

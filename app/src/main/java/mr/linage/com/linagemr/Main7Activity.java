@@ -85,21 +85,36 @@ public class Main7Activity extends Activity implements View.OnClickListener {
     private boolean flag_stop = false;
 
     public void setConfig() {
+//        /**
+//         * 에뮬레이터
+//         * y 64 증가
+//         */
+//        Config.x1 = 76;
+//        Config.y1 = 231;
+//
+//        Config.x2 = 76;
+//        Config.y2 = 295;
+//
+//        Config.x3 = 76;
+//        Config.y3 = 359;
+//
+//        Config.x4 = 71;
+//        Config.y4 = 378;
+
         /**
-         * 에뮬레이터
-         * y 64 증가
+         * 갤럭시s3
          */
-        Config.x1 = 76;
-        Config.y1 = 231;
+        Config.x1 = 57;
+        Config.y1 = 175;
 
-        Config.x2 = 76;
-        Config.y2 = 295;
+        Config.x2 = 57;
+        Config.y2 = 222;
 
-        Config.x3 = 76;
-        Config.y3 = 359;
+        Config.x3 = 57;
+        Config.y3 = 270;
 
-        Config.x4 = 71;
-        Config.y4 = 378;
+        Config.x4 = 57;
+        Config.y4 = 318;
 
         p_x = Config.x1;
         p_y = Config.y1;
@@ -374,10 +389,32 @@ public class Main7Activity extends Activity implements View.OnClickListener {
             sendMessageToService(argbVo, rank);
         }
         boolean flag = false;
-        if(Config.flag_search_app.equals(file_name)) {
-            flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+        if("app_log_1".equals(file_name)) {
+            if(!Config.flag_search_app_1) {
+                flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            } else {
+                flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+            }
+        } else if("app_log_2".equals(file_name)) {
+            if(!Config.flag_search_app_2) {
+                flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            } else {
+                flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+            }
+        } else if("app_log_3".equals(file_name)) {
+            if(!Config.flag_search_app_3) {
+                flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            } else {
+                flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+            }
+        } else if("app_log_4".equals(file_name)) {
+            if(!Config.flag_search_app_4) {
+                flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            } else {
+                flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+            }
         } else {
-            flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+//            flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
         }
         /**
          * 캐릭명 빨강(154,23,19)
@@ -385,7 +422,7 @@ public class Main7Activity extends Activity implements View.OnClickListener {
         if(flag) {
             Log.d(TAG,"pixelSearch"+" "+"캐릭명"+" "+"빨강"+" "+file_name+" "+"x :"+x+" "+"y :"+y+" "+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
             if("app_log_1".equals(file_name)) {
-                if(Config.flag_search_app.equals(file_name)) {
+                if(Config.flag_search_app_1) {
                     setLog(file_name);
                 } else {
                     if(flag_1==0) {
@@ -397,7 +434,7 @@ public class Main7Activity extends Activity implements View.OnClickListener {
                     flag_1++;
                 }
             } else if("app_log_2".equals(file_name)) {
-                if(Config.flag_search_app.equals(file_name)) {
+                if(Config.flag_search_app_2) {
                     setLog(file_name);
                 } else {
                     if(flag_2==0) {
@@ -409,7 +446,7 @@ public class Main7Activity extends Activity implements View.OnClickListener {
                     flag_2++;
                 }
             } else if("app_log_3".equals(file_name)) {
-                if(Config.flag_search_app.equals(file_name)) {
+                if(Config.flag_search_app_3) {
                     setLog(file_name);
                 } else {
                     if(flag_3==0) {
@@ -421,7 +458,7 @@ public class Main7Activity extends Activity implements View.OnClickListener {
                     flag_3++;
                 }
             } else if("app_log_4".equals(file_name)) {
-                if(Config.flag_search_app.equals(file_name)) {
+                if(Config.flag_search_app_4) {
                     setLog(file_name);
                 } else {
                     if(flag_4==0) {

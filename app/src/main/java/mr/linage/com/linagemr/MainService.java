@@ -36,6 +36,7 @@ public class MainService extends Service {
 	private WindowManager mWindowManager;			//윈도우 매니저
 	private SeekBar mSeekBar;								//투명도 조절 seek bar
 	private LinearLayout parentPP;
+	private LinearLayout parentCC;
 	private LinearLayout parentLL;
 	private LinearLayout parentRR;
 	private Button btn_cnt;								//단위 이동 버튼
@@ -46,7 +47,10 @@ public class MainService extends Service {
 	private Button btn_right;								//오른쪽 이동 버튼
 	private Button btn_send_stop;						//전송 제어 버튼
 	private Button btn_send_mode;						//전송 제어 버튼
-	private Button btn_search_target;						//전송 제어 버튼
+	private Button btn_search_target_1;						//전송 제어 버튼
+	private Button btn_search_target_2;						//전송 제어 버튼
+	private Button btn_search_target_3;						//전송 제어 버튼
+	private Button btn_search_target_4;						//전송 제어 버튼
 	int mode_num = 1;
 	int cnt = 1;
 	int rank = 1;
@@ -343,24 +347,57 @@ public class MainService extends Service {
 			}
 		});
 
-		btn_search_target = new Button(this);		//투명도 조절 seek bar
-		btn_search_target.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
-		btn_search_target.setText(Config.flag_search_app.split("_")[2]);
-		btn_search_target.setOnClickListener(new View.OnClickListener() {
+		btn_search_target_1 = new Button(this);		//투명도 조절 seek bar
+		btn_search_target_1.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
+		btn_search_target_1.setText(Config.flag_search_app_1+"");
+		btn_search_target_1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				if(Config.flag_search_app.equals("app_log_1")) {
-					Config.flag_search_app = "app_log_2";
-				} else if(Config.flag_search_app.equals("app_log_2")) {
-					Config.flag_search_app = "app_log_3";
-				} else if(Config.flag_search_app.equals("app_log_3")) {
-					Config.flag_search_app = "app_log_4";
-				} else if(Config.flag_search_app.equals("app_log_4")) {
-					Config.flag_search_app = "app_log_1";
-				}
-				btn_search_target.setText(Config.flag_search_app.split("_")[2]);
+				Config.flag_search_app_1 = !Config.flag_search_app_1;
+				btn_search_target_1.setText(Config.flag_search_app_1+"");
 			}
 		});
+
+		btn_search_target_2 = new Button(this);		//투명도 조절 seek bar
+		btn_search_target_2.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
+		btn_search_target_2.setText(Config.flag_search_app_2+"");
+		btn_search_target_2.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Config.flag_search_app_2 = !Config.flag_search_app_2;
+				btn_search_target_2.setText(Config.flag_search_app_2+"");
+			}
+		});
+
+		btn_search_target_3 = new Button(this);		//투명도 조절 seek bar
+		btn_search_target_3.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
+		btn_search_target_3.setText(Config.flag_search_app_3+"");
+		btn_search_target_3.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Config.flag_search_app_3 = !Config.flag_search_app_3;
+				btn_search_target_3.setText(Config.flag_search_app_3+"");
+			}
+		});
+
+		btn_search_target_4 = new Button(this);		//투명도 조절 seek bar
+		btn_search_target_4.setLayoutParams(new LinearLayout.LayoutParams(AndroidUtils.PixelFromDP(100,this),AndroidUtils.PixelFromDP(100,this)));
+		btn_search_target_4.setText(Config.flag_search_app_4+"");
+		btn_search_target_4.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Config.flag_search_app_4 = !Config.flag_search_app_4;
+				btn_search_target_4.setText(Config.flag_search_app_4+"");
+			}
+		});
+
+		parentCC = new LinearLayout(this);
+		parentCC.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+		parentCC.setOrientation(LinearLayout.HORIZONTAL);
+		parentCC.addView(btn_search_target_1);
+		parentCC.addView(btn_search_target_2);
+		parentCC.addView(btn_search_target_3);
+		parentCC.addView(btn_search_target_4);
 
 		parentLL = new LinearLayout(this);
 		parentLL.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -377,12 +414,12 @@ public class MainService extends Service {
 		parentRR.addView(btn_cnt);
 		parentRR.addView(btn_send_stop);
 		parentRR.addView(btn_send_mode);
-		parentRR.addView(btn_search_target);
 
 		parentPP = new LinearLayout(this);
 		parentPP.setLayoutParams(new LinearLayout.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT));
 		parentPP.setOrientation(LinearLayout.VERTICAL);
 		parentPP.setGravity(Gravity.CENTER);
+		parentPP.addView(parentCC);
 		parentPP.addView(parentLL);
 		parentPP.addView(parentRR);
 

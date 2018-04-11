@@ -38,6 +38,7 @@ import java.net.SocketAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import mr.linage.com.common.Config;
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
 
@@ -81,10 +82,47 @@ public class Main5Activity extends Activity implements View.OnClickListener {
     private int flag_4 = 0;
     private boolean flag_stop = false;
 
+    public void setConfig() {
+//        /**
+//         * 에뮬레이터
+//         * y 64 증가
+//         */
+//        Config.x1 = 76;
+//        Config.y1 = 231;
+//
+//        Config.x2 = 76;
+//        Config.y2 = 295;
+//
+//        Config.x3 = 76;
+//        Config.y3 = 359;
+//
+//        Config.x4 = 71;
+//        Config.y4 = 378;
+
+        /**
+         * 갤럭시s3
+         */
+        Config.x1 = 57;
+        Config.y1 = 175;
+
+        Config.x2 = 57;
+        Config.y2 = 222;
+
+        Config.x3 = 57;
+        Config.y3 = 270;
+
+        Config.x4 = 57;
+        Config.y4 = 318;
+
+        p_x = Config.x1;
+        p_y = Config.y1;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG,"onCreate");
         super.onCreate(savedInstanceState);
+        setConfig();
         setContentView(R.layout.activity_main);
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(this)) {
@@ -268,8 +306,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         Log.d(TAG,"onImageAvailable bitmap 생성");
         {
             if(mode_num>=1) {
-                int x = AndroidUtils.DPFromPixel(57,getApplicationContext());
-                int y = AndroidUtils.DPFromPixel(175,getApplicationContext());
+                int x = AndroidUtils.DPFromPixel(Config.x1,getApplicationContext());
+                int y = AndroidUtils.DPFromPixel(Config.y1,getApplicationContext());
                 if(rank==1) {
                     x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                     y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
@@ -280,8 +318,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
 
         {
             if(mode_num>=2) {
-                int x = AndroidUtils.DPFromPixel(57,getApplicationContext());
-                int y = AndroidUtils.DPFromPixel(222,getApplicationContext());
+                int x = AndroidUtils.DPFromPixel(Config.x2,getApplicationContext());
+                int y = AndroidUtils.DPFromPixel(Config.y2,getApplicationContext());
                 if(rank==2) {
                     x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                     y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
@@ -292,8 +330,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
 
         {
             if(mode_num>=3) {
-                int x = AndroidUtils.DPFromPixel(57,getApplicationContext());
-                int y = AndroidUtils.DPFromPixel(270,getApplicationContext());
+                int x = AndroidUtils.DPFromPixel(Config.x3,getApplicationContext());
+                int y = AndroidUtils.DPFromPixel(Config.y3,getApplicationContext());
                 if(rank==3) {
                     x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                     y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
@@ -305,8 +343,8 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         {
             if(mode_num>=4) {
                 //54, 314 : 114, 329
-                int x = AndroidUtils.DPFromPixel(117,getApplicationContext());
-                int y = AndroidUtils.DPFromPixel(332,getApplicationContext());
+                int x = AndroidUtils.DPFromPixel(Config.x4,getApplicationContext());
+                int y = AndroidUtils.DPFromPixel(Config.y4,getApplicationContext());
                 if(rank==4) {
                     x = AndroidUtils.DPFromPixel(p_x,getApplicationContext());
                     y = AndroidUtils.DPFromPixel(p_y,getApplicationContext());
@@ -338,10 +376,32 @@ public class Main5Activity extends Activity implements View.OnClickListener {
             sendMessageToService(argbVo, rank);
         }
         boolean flag = false;
-        if("app_log_4".equals(file_name)) {
-            flag = !(260>R&&R>150&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+        if("app_log_1".equals(file_name)) {
+            if(!Config.flag_search_app_1) {
+                flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            } else {
+                flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+            }
+        } else if("app_log_2".equals(file_name)) {
+            if(!Config.flag_search_app_2) {
+                flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            } else {
+                flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+            }
+        } else if("app_log_3".equals(file_name)) {
+            if(!Config.flag_search_app_3) {
+                flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            } else {
+                flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+            }
+        } else if("app_log_4".equals(file_name)) {
+            if(!Config.flag_search_app_4) {
+                flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+            } else {
+                flag = !(260>R&&R>130&&G<100&&B<100);//캐릭 에너지 빨강 아닐때(154,23,19)
+            }
         } else {
-            flag = (260>R&&R>150&&G<100&&B<100);//캐릭명 빨강(154,23,19)
+//            flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
         }
         /**
          * 캐릭명 빨강(154,23,19)
@@ -349,31 +409,55 @@ public class Main5Activity extends Activity implements View.OnClickListener {
         if(flag) {
             Log.d(TAG,"pixelSearch"+" "+"캐릭명"+" "+"빨강"+" "+file_name+" "+"x :"+x+" "+"y :"+y+" "+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
             if("app_log_1".equals(file_name)) {
-                if(flag_1==0) {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                if(Config.flag_search_app_1) {
                     setLog(file_name);
                 } else {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    if(flag_1==0) {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                        setLog(file_name);
+                    } else {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    }
+                    flag_1++;
                 }
-                flag_1++;
             } else if("app_log_2".equals(file_name)) {
-                if(flag_2==0) {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                if(Config.flag_search_app_2) {
                     setLog(file_name);
                 } else {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    if(flag_2==0) {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                        setLog(file_name);
+                    } else {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    }
+                    flag_2++;
                 }
-                flag_2++;
             } else if("app_log_3".equals(file_name)) {
-                if(flag_3==0) {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                if(Config.flag_search_app_3) {
                     setLog(file_name);
                 } else {
-                    Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    if(flag_3==0) {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                        setLog(file_name);
+                    } else {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    }
+                    flag_3++;
                 }
-                flag_3++;
+            } else if("app_log_4".equals(file_name)) {
+                if(Config.flag_search_app_4) {
+                    setLog(file_name);
+                } else {
+                    if(flag_4==0) {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환~");
+                        setLog(file_name);
+                    } else {
+                        Log.d(TAG, "pixelSearch"+" "+" "+file_name+"===>>> 귀환초기화대기중~");
+                    }
+                    flag_4++;
+                }
             } else {
-                setLog(file_name);
+//                setLog(file_name);
             }
         } else {
             Log.d(TAG, "pixelSearch"+" "+"캐릭명"+" "+"흰색"+" "+file_name+"x :"+x+" "+"y :"+y+" "+" "+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"===>>> 귀환준비~");
