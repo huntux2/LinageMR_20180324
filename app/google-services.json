@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "109080083624",
+    "firebase_url": "https://ydh-world.firebaseio.com",
+    "project_id": "ydh-world",
+    "storage_bucket": "ydh-world.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109080083624:android:aec71c293ed6c0c5",
+        "android_client_info": {
+          "package_name": "com.step.one"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "109080083624-ci1ddoocqpkc8rvks9b7a6sc4b2v2aav.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAog9GGshyXjrxUE2DJfjGKvIGdwSPUOis"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109080083624:android:989f30cc46d8dff5",
+        "android_client_info": {
+          "package_name": "mr.linage.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "109080083624-ci1ddoocqpkc8rvks9b7a6sc4b2v2aav.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAog9GGshyXjrxUE2DJfjGKvIGdwSPUOis"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

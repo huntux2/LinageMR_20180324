@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="mr.linage.com.linagemr">
+    package="mr.linage.com">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name="android.support.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -19,10 +20,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!--
+            <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_ic_notification" />
+        -->
+        <!--
+             Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+        <!-- [END fcm_default_icon] -->
+        <!-- [START fcm_default_channel] -->
+        <!--
+            <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id"/>
+        -->
+        <!-- [END fcm_default_channel] -->
+
         <activity
-            android:name=".Main5Activity"
-            android:launchMode="singleTask"
+            android:name=".linagemr.MainFcm"
             android:configChanges="orientation"
+            android:launchMode="singleTask"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,11 +54,28 @@
         </activity>
 
         <service
-            android:name=".MainService"
+            android:name=".linagemr.MainService"
             android:enabled="true"
             android:exported="false"> <!-- 퍼미션 중요 -->
             <intent-filter>
                 <action android:name="mr.linage.com.linagemr.OnTop" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name=".receiver.NotiBroadcastReceiver">
+            <intent-filter android:priority="10000">
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".service.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name=".service.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
