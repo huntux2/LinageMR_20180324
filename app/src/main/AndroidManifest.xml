@@ -62,11 +62,11 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".receiver.NotiBroadcastReceiver">
+        <!--<receiver android:name=".receiver.NotiBroadcastReceiver">
             <intent-filter android:priority="10000">
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
         <service android:name=".service.MyFirebaseMessagingService">
             <intent-filter>

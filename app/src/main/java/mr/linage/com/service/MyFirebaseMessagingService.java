@@ -3,24 +3,26 @@ package mr.linage.com.service;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.Map;
+
+import mr.linage.com.soket.TCPClient;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private final String TAG = "MyFMService";
+
+    private String socket_client_ip = "";
+    private int socket_server_port = 9999;
+    TCPClient tc = null;
 
     /**
      * Called when message is received.
@@ -37,15 +39,33 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         RemoteMessage.Notification notification = remoteMessage.getNotification();
         Map<String, String> data = remoteMessage.getData();
         Log.d(TAG,"data:"+data);
-        ip = data.get("ip");
-        Log.d(TAG,"ip:"+ip);
-        if(!"".equals(ip)) {
-            Log.d(TAG,"client:"+client);
-            if (client == null) {
-                SoketStart();
-            } else {
-                search();
-            }
+        socket_client_ip = data.get("ip");
+        Log.d(TAG,"socket_client_ip:"+ socket_client_ip);
+//        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+//        File videoFile = new File(Environment.getExternalStorageDirectory() + "/screenrecord-sample.mp4");
+//        if(videoFile.exists()) {
+//            Log.d(TAG,"search3:files.setDataSource");
+//            retriever.setDataSource(videoFile.toString());
+//            Log.d(TAG,"search3:files.getFrameAtTime");
+//            Bitmap bitmap = retriever.getFrameAtTime();
+//            Log.d(TAG,"search3:bitmap:"+bitmap);
+//        }
+//        search();
+        if(!"".equals(socket_client_ip)) {
+            tc = new TCPClient(socket_client_ip, socket_server_port) {
+                @Override
+                public void run() {
+                    super.run();
+                    // runOnUiThread를 추가하고 그 안에 UI작업을 한다.
+                    search();
+                }
+                @Override
+                public void sendDing(String msg) {
+                    super.sendDing(msg);
+                    stop_search = true;
+                }
+            };
+            tc.start();
         }
 //        sendNotification(notification, data);
     }
@@ -120,14 +140,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Log.d(TAG,"search3:videoFile:"+videoFile.toString());
                 while (true) {
                     try {
-                        File files = new File(videoFile.toString());
-                        Log.d(TAG,"search3:files.exists():"+files.exists());
-                        if(files.exists()==true) {
-                            Log.d(TAG,"search3:files.setDataSource");
-                            retriever.setDataSource(videoFile.toString());
-                            Log.d(TAG,"search3:files.getFrameAtTime");
-                            bitmap = retriever.getFrameAtTime(0,MediaMetadataRetriever.OPTION_CLOSEST);
-                        }
+                        Log.d(TAG,"search3:files.setDataSource");
+                        retriever.setDataSource(this, Uri.parse(videoFile.toString()));
+                        Log.d(TAG,"search3:files.getFrameAtTime");
+                        bitmap = retriever.getFrameAtTime();
                     } catch (Exception ss) {
                         Log.d(TAG,"setDataSource:"+ss.toString());
                     }
@@ -166,6 +182,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     public void bitmap(Bitmap bitmap) {
         Log.d(TAG,"bitmap1");
+        /**
+         * 로직 실행 확인 : 49,121,206
+         * 위치 : 1125, 320
+         * 액션 : 없음
+         */
+        {
+            int x = 130;
+            int y = 175;
+            pixelSearch(bitmap, x, y,"");
+            if(stop_search) {
+                return;
+            }
+        }
         /**
          * 세이프티 존 확인 : 49,121,206
          * 위치 : 1125, 320
@@ -215,7 +244,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //            int y = 266;
 //            pixelSearch(bitmap, x, y,"app_log_3");
 //        }
-        SoketClose();
+        tc.quit();
     }
 
     boolean stop_search = false;
@@ -230,6 +259,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         int G = Color.green(rgb); //green값 추출
         int B = Color.blue(rgb); //blue값 추출
         Log.d(TAG,"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
+        stop_search = ((R>240&&R<255)&&(G>240&&G<255)&&(B>240&&B<255));//파티 탭(49,121,206)
+        /**
+         * 실행 여부 확인
+         */
+        if(!stop_search) {
+            return;
+        }
         stop_search = ((R>20&&R<90)&&(G>90&&G<150)&&(B>160&&B<240));//세이프티 존(49,121,206)
         /**
          * 안전확인
@@ -243,95 +279,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Log.d(TAG,"빨강색"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"msg :"+msg);
                 } else {
                     Log.d(TAG,"빨강색 아님"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"msg :"+msg);
-                    sendDing(msg);
+                    tc.sendDing(msg);
                 }
             }
-        }
-    }
-    /**
-     * 소켓 변수
-     */
-    private String ip = "";
-    private Socket socket;
-    private TCPClient client;
-    private BufferedWriter networkWriter;
-    public class TCPClient extends Thread {
-        SocketAddress socketAddress;
-        private final int connection_timeout = 2000;
-        public TCPClient(String ip, int port) throws RuntimeException {
-            Log.d(TAG,"TCPClient:"+ip);
-            Log.d(TAG,"TCPClient:"+port);
-            socketAddress = new InetSocketAddress(ip, port);
-        }
-        @Override
-        public void run() {
-            Log.d(TAG,"client run");
-            try {
-                socket = new Socket();
-                socket.setSoTimeout(connection_timeout);
-                socket.setSoLinger(true, 0);
-                socket.connect(socketAddress, connection_timeout);
-                networkWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                Log.d(TAG,"setThread"+" "+"정상적으로 서버에 접속하였습니다.");
-                search();
-            } catch (Exception e) {
-                Log.d(TAG,"setThread"+" "+"소켓을 생성하지 못했습니다.");
-                quit();
-            }
-        }
-        public void quit() {
-            try {
-                if (networkWriter != null) {
-                    networkWriter.close();
-                    networkWriter = null;
-                }
-                if (socket != null) {
-                    socket.close();
-                    socket = null;
-                    Log.d(TAG,"setThread"+" "+"접속을 중단합니다.");
-                }
-                if(client != null) {
-                    client = null;
-                }
-            } catch (IOException e) {
-                Log.d(TAG, "에러 발생", e);
-            }
-        }
-    }
-    public void sendDing(String msg) {
-        Log.d(TAG,"sendDing1");
-        try {
-            if(networkWriter!=null) {
-                Log.d(TAG,"sendDing2");
-                networkWriter.write(msg);
-                networkWriter.newLine();
-                networkWriter.flush();
-                Log.d(TAG,"sendDing3");
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "에러 발생", e);
-            SoketClose();
-        }
-        stop_search = true;
-    }
-    private void SoketStart() {
-        if(!"".equals(ip)) {
-            try {
-                Log.d(TAG,"client:"+client);
-                if(client==null) {
-                    client = new TCPClient(ip, 9999);
-                    client.start();
-                }
-            } catch (RuntimeException e) {
-                Log.d(TAG, "에러 발생", e);
-                SoketClose();
-            }
-        }
-    }
-    private void SoketClose() {
-        if (client != null) {
-            client.quit();
-            client = null;
         }
     }
 }

@@ -17,7 +17,6 @@ public class TCPClient extends Thread {
      * 소켓 변수
      */
     private Socket socket;
-    private TCPClient client;
     private BufferedWriter networkWriter;
 
     SocketAddress socketAddress;
@@ -51,18 +50,8 @@ public class TCPClient extends Thread {
                 socket = null;
                 Log.d(TAG,"setThread"+" "+"접속을 중단합니다.");
             }
-            if(client != null) {
-                client = null;
-            }
         } catch (IOException e) {
             Log.d(TAG, "에러 발생", e);
-        }
-    }
-
-    private void SoketClose() {
-        if (client != null) {
-            client.quit();
-            client = null;
         }
     }
 
@@ -77,7 +66,6 @@ public class TCPClient extends Thread {
             }
         } catch (Exception e) {
             Log.d(TAG, "에러 발생", e);
-            SoketClose();
         }
     }
 }
