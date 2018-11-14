@@ -49,6 +49,7 @@ import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import mr.linage.com.R;
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
 
@@ -248,7 +249,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         }
 
+        Log.d("startProjection","권한 요청");
         if(mProjectionManager==null) {
+            Log.d("startProjection","권한 요청 Build.VERSION.SDK_INT:"+Build.VERSION.SDK_INT);
+            Log.d("startProjection","권한 요청 Build.VERSION_CODES.LOLLIPOP:"+Build.VERSION_CODES.LOLLIPOP);
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 // 시스템의 Projection service를 획득합니다.
                 mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
@@ -262,9 +266,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         findViewById(R.id.end).setOnClickListener(this);			//중시버튼
         findViewById(R.id.soket).setOnClickListener(this);			//연결
         findViewById(R.id.soket_send).setOnClickListener(this);			//보내기
-
-        SoketStart();
-
+//
+//        SoketStart();
+//
         /*
         여기서 mHandler가 만들어지게 됩니다.
         새로운 스레드 하나 만들고, 핸들러 만들어서 prepare()로 메세지큐가 준비되면, 핸들러 만들고
@@ -285,6 +289,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void startProjection() {
+        Log.d("startProjection","권한 요청");
         //사용자 허가 요청!
         startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
     }
@@ -396,18 +401,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
             Image image = null;
             FileOutputStream fos = null;
             Bitmap bitmap = null;
-
             try {
                 //가장 최신 이미지를 가져 옵니다. image 객체로
                 image = mImageReader.acquireLatestImage();
-                if (image != null) {
-                    if(flag_stop) {
-                        new Handler().postDelayed(new Runnable() {// 1 초 후에 실행
-                            @Override public void run() { // 실행할 동작 코딩
-                                flag_stop = false;
-                            }
-                        }, 250);
-                    }
+                if (image != null&&!flag_stop) {
                     flag_stop = true;
                     /*
                     여기서 getPlanes()로 가져와서 0배열만 쓰는 이유를 모르겠습니다.
@@ -473,7 +470,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             sendMessageToService(argbVo, rank);
                         }
 
-                        log(bitmap, rgb, A, R, G, B, "app_log_1", 1);
+//                        log(bitmap, rgb, A, R, G, B, "app_log_1", 1);
                     }
 
                     {
@@ -503,7 +500,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             sendMessageToService(argbVo, rank);
                         }
 
-                        log(bitmap, rgb, A, R, G, B, "app_log_2", 2);
+//                        log(bitmap, rgb, A, R, G, B, "app_log_2", 2);
                     }
 
                     {
@@ -533,7 +530,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             sendMessageToService(argbVo, rank);
                         }
 
-                        log(bitmap, rgb, A, R, G, B, "app_log_3", 3);
+//                        log(bitmap, rgb, A, R, G, B, "app_log_3", 3);
                     }
 
                     {
@@ -563,8 +560,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             sendMessageToService(argbVo, rank);
                         }
 
-                        log(bitmap, rgb, A, R, G, B, "app_log_4", 4);
+//                        log(bitmap, rgb, A, R, G, B, "app_log_4", 4);
                     }
+                    flag_stop = false;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -576,13 +574,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
                         ioe.printStackTrace();
                     }
                 }
-
                 if (bitmap != null) {
-                    bitmap.recycle();
+                    try {
+                        bitmap.recycle();
+                    } catch (Exception ioe) {
+                        ioe.printStackTrace();
+                    }
                 }
-
                 if (image != null) {
-                    image.close();
+                    try {
+                        image.close();
+                    } catch (Exception ioe) {
+                        ioe.printStackTrace();
+                    }
                 }
             }
         }
@@ -607,7 +611,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
                 } else {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
-                    setLog(file_name);
+//                    setLog(file_name);
                 }
 //                if(flag_1==0) {
 //                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
@@ -630,7 +634,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
                 } else {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
-                    setLog(file_name);
+//                    setLog(file_name);
                 }
 //                if(flag_2==0) {
 //                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
@@ -653,7 +657,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
                 } else {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
-                    setLog(file_name);
+//                    setLog(file_name);
                 }
 //                if(flag_3==0) {
 //                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
@@ -676,7 +680,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환초기화대기중~");
                 } else {
                     Log.d("LinageMR", file_name+" "+"===>>> 귀환~");
-                    setLog(file_name);
+//                    setLog(file_name);
                 }
 //                if(flag_4==0) {
 //                    Log.d("LinageMR", file_name+" "+"===>>> 귀환~");

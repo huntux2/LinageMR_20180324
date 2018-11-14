@@ -41,6 +41,7 @@ import java.nio.Buffer;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import mr.linage.com.R;
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;
 

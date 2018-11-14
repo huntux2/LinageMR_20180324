@@ -37,6 +37,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.TimerTask;
 
+import mr.linage.com.R;
 import mr.linage.com.soket.Server;
 import mr.linage.com.utils.AndroidUtils;
 import mr.linage.com.vo.ArgbVo;

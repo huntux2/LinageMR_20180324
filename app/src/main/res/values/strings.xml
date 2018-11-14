@@ -3,4 +3,9 @@
     <string name="btn_start">Start</string>
     <string name="btn_end">End</string>
     <string name="btn_soket">Soket</string>
+    <string name="btn_ui_a">UI 제어</string>
+    <string name="btn_ui_b">위</string>
+    <string name="btn_ui_c">아</string>
+    <string name="btn_ui_d">좌</string>
+    <string name="btn_ui_e">우</string>
 </resources>
