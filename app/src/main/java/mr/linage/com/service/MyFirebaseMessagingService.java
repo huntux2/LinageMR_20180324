@@ -192,9 +192,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 int x = 102;
                 int y = 253;
                 pixelSearch(bitmap, x, y,"app_log_1");
-                if(stop_search) {
-                    return;
-                }
             }
         }
         if(!stop_search) {
@@ -207,9 +204,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 int x = 162;
                 int y = 253;
                 pixelSearch(bitmap, x, y,"app_log_2");
-                if(stop_search) {
-                    return;
-                }
             }
         }
         if(!stop_search) {
@@ -235,7 +229,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     boolean stop_search = false;
-    public void pixelSearch(Bitmap bitmap,int x, int y, final String msg) {
+    public void pixelSearch(Bitmap bitmap,int x, int y, String msg) {
         Log.d(TAG,"pixelSearch1 x:"+x+","+" y:"+y+","+" msg:"+msg);
         /**
          * 캐릭명(x, y)
@@ -253,6 +247,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
              */
             if(stop_search) {
                 Log.d(TAG,"실행 안함"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
+                callServer("app_on_destory");
                 return;
             }
         }
@@ -263,6 +258,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
              */
             if(stop_search) {
                 Log.d(TAG,"세이프티 존"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
+                callServer("app_on_destory");
                 return;
             }
         }
@@ -272,23 +268,41 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Log.d(TAG,"빨강색"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"msg :"+msg);
             } else {
                 Log.d(TAG,"빨강색 아님"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"msg :"+msg);
-                if(!"".equals(socket_client_ip)) {
-                    tc = new TCPClient(socket_client_ip, socket_server_port) {
-                        @Override
-                        public void run() {
-                            super.run();
-                            // runOnUiThread를 추가하고 그 안에 UI작업을 한다.
-                            sendDing(msg);
-                        }
-                        @Override
-                        public void sendDing(String msg) {
-                            super.sendDing(msg);
-                            stop_search = true;
-                        }
-                    };
-                    tc.start();
-                }
+                callServer(msg);
+                return;
             }
         }
+    }
+
+    private void callServer(final String msg) {
+        if(!"".equals(socket_client_ip)) {
+            if(tc!=null) {
+                tc.quit();
+                tc = null;
+            }
+            tc = new TCPClient(socket_client_ip, socket_server_port) {
+                @Override
+                public void run() {
+                    super.run();
+                    // runOnUiThread를 추가하고 그 안에 UI작업을 한다.
+                    sendDing(msg);
+                }
+                @Override
+                public void sendDing(String msg) {
+                    super.sendDing(msg);
+                    stop_search = true;
+                }
+            };
+            tc.start();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        if(!stop_search) {
+            callServer("app_on_destory");
+        }
+        super.onDestroy();
     }
 }
