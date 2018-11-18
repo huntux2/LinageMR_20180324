@@ -18,6 +18,7 @@ public class TCPClient extends Thread {
      */
     private Socket socket;
     private BufferedWriter networkWriter;
+    public boolean RESULT_OK = false;
 
     SocketAddress socketAddress;
     private final int connection_timeout = 2000;
@@ -33,6 +34,7 @@ public class TCPClient extends Thread {
             socket.connect(socketAddress, connection_timeout);
             networkWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             Log.d(TAG,"setThread"+" "+"정상적으로 서버에 접속하였습니다.");
+            RESULT_OK = true;
         } catch (Exception e) {
             Log.d(TAG,"setThread"+" "+"소켓을 생성하지 못했습니다.");
             quit();
