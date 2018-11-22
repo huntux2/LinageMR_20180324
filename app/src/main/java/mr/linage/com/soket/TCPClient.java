@@ -22,6 +22,9 @@ public class TCPClient extends Thread {
 
     SocketAddress socketAddress;
     private final int connection_timeout = 2000;
+
+    String msg = "app";
+
     public TCPClient(String ip, int port) throws RuntimeException {
         socketAddress = new InetSocketAddress(ip, port);
     }
@@ -59,12 +62,16 @@ public class TCPClient extends Thread {
 
     public void sendDing(String msg) {
         Log.d(TAG,"sendDing"+" "+"msg:"+msg);
-        Log.d(TAG,"sendDing"+" "+"networkWriter:"+networkWriter);
+//        Log.d(TAG,"sendDing"+" "+"networkWriter:"+networkWriter);
+        if("".equals(msg)) {
+            msg = this.msg;
+        }
         try {
             if(networkWriter!=null) {
                 networkWriter.write(msg);
                 networkWriter.newLine();
                 networkWriter.flush();
+                Log.d(TAG,"sendDing 완료");
             }
         } catch (Exception e) {
             Log.d(TAG, "에러 발생", e);
