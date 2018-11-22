@@ -235,6 +235,7 @@ public class MyService extends Service {
         } catch (Exception e) {
             e.printStackTrace();
             Log.d(TAG,"callServer call end ?????????");
+            stopSelf();
         }
     }
 
