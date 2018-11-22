@@ -20,19 +20,19 @@ public class MainFcm extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         /*setContentView(R.layout.activity_main_fcm);*/
-//        FirebaseInstanceId.getInstance().getToken();
-//        if (FirebaseInstanceId.getInstance().getToken() != null) {
-//            Log.d(TAG, "token = " + FirebaseInstanceId.getInstance().getToken());
-//        }
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        File videoFile = new File(Environment.getExternalStorageDirectory() + "/screenrecord-sample.mp4");
-        if(videoFile.exists()) {
-            Log.d(TAG,"search3:files.setDataSource");
-            retriever.setDataSource(videoFile.toString());
-            Log.d(TAG,"search3:files.getFrameAtTime");
-            Bitmap bitmap = retriever.getFrameAtTime(1000);
-            Log.d(TAG,"search3:bitmap:"+bitmap);
+        FirebaseInstanceId.getInstance().getToken();
+        if (FirebaseInstanceId.getInstance().getToken() != null) {
+            Log.d(TAG, "token = " + FirebaseInstanceId.getInstance().getToken());
         }
+//        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+//        File videoFile = new File(Environment.getExternalStorageDirectory() + "/screenrecord-sample.mp4");
+//        if(videoFile.exists()) {
+//            Log.d(TAG,"search3:files.setDataSource");
+//            retriever.setDataSource(videoFile.toString());
+//            Log.d(TAG,"search3:files.getFrameAtTime");
+//            Bitmap bitmap = retriever.getFrameAtTime(1000);
+//            Log.d(TAG,"search3:bitmap:"+bitmap);
+//        }
         finish();
     }
 }
