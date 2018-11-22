@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/assem_empImg"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="10dp"
+            android:layout_gravity="top"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@color/colorAccent"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:ignore="NotSibling">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:layout_width="50dp"
+                    android:layout_height="35dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:padding="0dp"
+                    android:layout_marginLeft="-5dip"
+                    android:layout_marginRight="-5dip"
+                    android:layout_marginTop="-5dip"
+                    android:layout_marginBottom="-5dip"
+                    android:textSize="8dp"
+                    android:text="버튼1"/>
+
+                <Button
+                    android:layout_width="50dp"
+                    android:layout_height="35dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:padding="0dp"
+                    android:layout_marginLeft="5dip"
+                    android:layout_marginRight="-5dip"
+                    android:layout_marginTop="-5dip"
+                    android:layout_marginBottom="-5dip"
+                    android:textSize="8dp"
+                    android:text="버튼2"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical">
+
+                    <TextView
+                        android:gravity="center_vertical"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="9dp"
+                        android:text="오전 10:43" />
+
+                    <ImageView
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="12dp"
+                        android:layout_height="9dp"
+                        android:src="@android:drawable/arrow_up_float" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/assem_origNm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginTop="5dp"
+                android:textSize="10dp"
+                android:textStyle="normal|bold"
+                android:textColor="#000"
+                android:text="테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
