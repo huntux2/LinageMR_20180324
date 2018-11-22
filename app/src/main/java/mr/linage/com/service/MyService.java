@@ -16,6 +16,7 @@ import mr.linage.com.soket.TCPClient;
 
 /**
  * Created by YDH on 2018-11-17.
+ * adb shell am startservice -n mr.linage.com/mr.linage.com.service.MyService --es 'socket_client_ip' '192.168.0.4'
  */
 
 public class MyService extends Service {
