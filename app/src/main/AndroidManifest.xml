@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="mr.linage.com">
 
+    <!-- 다른앱위에 그리기 권한 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <!-- external storage 권한 얻기(쓰기 권한) -->
@@ -9,6 +10,8 @@
 
     <!-- external storage 권한 얻기(읽기 권한) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- 인터넷 사용 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -80,6 +83,12 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+        
+        <receiver android:name=".receiver.MyBroadCastReceiver">
+            <intent-filter>
+                <action android:name="mr.linage.com.broadcastreceiver.test"></action>
+            </intent-filter>
+        </receiver>
 
         <service android:name=".service.MyService"
             android:enabled="true"

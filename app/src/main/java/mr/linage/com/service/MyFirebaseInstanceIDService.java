@@ -16,10 +16,16 @@
 
 package mr.linage.com.service;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
@@ -35,8 +41,19 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
     @Override
     public void onTokenRefresh() {
         // Get updated InstanceID token.
-        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        final String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "Refreshed token: " + refreshedToken);
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, Object> childUpdates = new HashMap<>();
+                childUpdates.put("token",refreshedToken);
+                FirebaseDatabase.getInstance().getReference("users").child("01084092025").updateChildren(childUpdates);
+                Log.d(TAG, "FirebaseDatabase token update: " + refreshedToken);
+            }
+        });
 
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
