@@ -170,7 +170,7 @@ public class MainFcm extends Activity {
         }
         setNoti(0);
         setNoti(1);
-//        finish();
+        finish();
     }
 
     private void setNoti(int id) {

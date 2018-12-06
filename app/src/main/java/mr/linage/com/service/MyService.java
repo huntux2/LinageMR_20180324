@@ -82,21 +82,22 @@ public class MyService extends Service {
 
     public void bitmapRead(Bitmap bitmap) throws Exception {
         Log.d(TAG,"bitmapRead1");
-        boolean callServerFlag = false;
-        String msg = "";
-        if(!stop_search) {
-            /**
-             * 로직 실행 확인 : 49,121,206
-             * 위치 : 1125, 320
-             * 액션 : 없음
-             */
-            {
-                int x = 130;
-                int y = 175;
-                msg = pixelSearch(bitmap, x, y, "party_tab");
-            }
+        String msg = "app_on_destory";
+        boolean party_tab = false;
+        boolean safety_zone = false;
+        boolean hp_red = false;
+        /**
+         * 파티 탭
+         * 로직 실행 확인 : 49,121,206
+         * 위치 : 130, 175
+         * 액션 : 없음
+         */
+        {
+            int x = 130;
+            int y = 175;
+            party_tab = pixelSearch(bitmap, x, y, "party_tab");
         }
-        if(!stop_search) {
+        if(party_tab) {
             /**
              * 세이프티 존 확인 : 49,121,206
              * 위치 : 1125, 320
@@ -105,44 +106,66 @@ public class MyService extends Service {
             {
                 int x = 1125;
                 int y = 320;
-                msg = pixelSearch(bitmap, x, y, "safety_zone");
+                safety_zone = pixelSearch(bitmap, x, y, "safety_zone");
             }
-        }
-        if(!stop_search) {
-            /**
-             * HP 빨강 확인 : 154,23,19
-             * 위치 : 102, 253
-             * 액션 : 4번째 클릭
-             */
-            {
-                int x = 102;
-                int y = 253;
-                msg = pixelSearch(bitmap, x, y, "app_log_1");
+            if(!safety_zone) {
+                /**
+                 * 힐 확인용
+                 * HP 빨강 확인 : 154,23,19
+                 * 위치 : 75, 255
+                 * 액션 : 없음
+                 */
+                {
+                    int x = 75;
+                    int y = 255;
+                    hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                }
+                if(hp_red) {
+                    /**
+                     * 귀환 확인 용
+                     * HP 빨강 확인 : 154,23,19
+                     * 위치 : 102, 253
+                     * 액션 : L1 실행
+                     */
+                    {
+                        int x = 102;
+                        int y = 253;
+                        hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                        if(!hp_red) {
+                            msg = "app_log_1";
+                        }
+                    }
+                }
             }
-        }
-        if(!stop_search) {
-            /**
-             * HP 빨강 확인 : 154,23,19
-             * 위치 : 162, 253
-             * 액션 : 2번째 클릭
-             */
-            {
-                int x = 162;
-                int y = 253;
-                msg = pixelSearch(bitmap, x, y, "app_log_2");
+            if("app_on_destory".equals(msg)) {
+                /**
+                 * 힐 확인용
+                 * HP 빨강 확인 : 154,23,19
+                 * 위치 : 75, 255
+                 * 액션 : 없음
+                 */
+                {
+                    int x = 75;
+                    int y = 255;
+                    hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                }
+                if(hp_red) {
+                    /**
+                     * 힐 확인용
+                     * HP 빨강 확인 : 154,23,19
+                     * 위치 : 162, 253
+                     * 액션 : L2 실행
+                     */
+                    {
+                        int x = 162;
+                        int y = 253;
+                        hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                        if(!hp_red) {
+                            msg = "app_log_2";
+                        }
+                    }
+                }
             }
-        }
-        if(!stop_search) {
-//        /**
-//         * MP 파랑 확인 : 16,73,115
-//         * 위치 : 76, 266
-//         * 액션 : 1번째 클릭
-//         */
-//        {
-//            int x = 130;
-//            int y = 266;
-//            msg = pixelSearch(bitmap, x, y,"app_log_3");
-//        }
         }
         callServer(msg);
         if(bitmap!=null) {
@@ -151,8 +174,91 @@ public class MyService extends Service {
         }
     }
 
-    boolean stop_search = false;
-    public String pixelSearch(Bitmap bitmap,int x, int y, String msg) throws Exception {
+//    public void bitmapRead(Bitmap bitmap) throws Exception {
+//        Log.d(TAG,"bitmapRead1");
+//        boolean callServerFlag = false;
+//        String msg = "";
+//        if(!stop_search) {
+//            /**
+//             * 로직 실행 확인 : 49,121,206
+//             * 위치 : 1125, 320
+//             * 액션 : 없음
+//             */
+//            {
+//                int x = 130;
+//                int y = 175;
+//                msg = pixelSearch(bitmap, x, y, "party_tab");
+//            }
+//        }
+//        if(!stop_search) {
+//            /**
+//             * 세이프티 존 확인 : 49,121,206
+//             * 위치 : 1125, 320
+//             * 액션 : 없음
+//             */
+//            {
+//                int x = 1125;
+//                int y = 320;
+//                msg = pixelSearch(bitmap, x, y, "safety_zone");
+//            }
+//            if(!stop_search) {
+//                /**
+//                 * HP 빨강 확인 : 154,23,19
+//                 * 위치 : 102, 253
+//                 * 액션 : 4번째 클릭
+//                 */
+//                {
+//                    int x = 102;
+//                    int y = 253;
+//                    msg = pixelSearch(bitmap, x, y, "app_log_1");
+//                }
+//            }
+//        }
+//        if(!stop_search) {
+//            /**
+//             * HP 빨강 확인 : 154,23,19
+//             * 위치 : 75, 255
+//             * 액션 : 없음
+//             */
+//            {
+//                int x = 75;
+//                int y = 255;
+//                msg = pixelSearch(bitmap, x, y, "app_log_2");
+//            }
+//            if(!stop_search) {
+//                /**
+//                 * HP 빨강 확인 : 154,23,19
+//                 * 위치 : 162, 253
+//                 * 액션 : 2번째 클릭
+//                 */
+//                {
+//                    int x = 162;
+//                    int y = 253;
+//                    msg = pixelSearch(bitmap, x, y, "app_log_2");
+//                }
+//            }
+//        }
+//        if(!stop_search) {
+////        /**
+////         * MP 파랑 확인 : 16,73,115
+////         * 위치 : 76, 266
+////         * 액션 : 1번째 클릭
+////         */
+////        {
+////            int x = 130;
+////            int y = 266;
+////            msg = pixelSearch(bitmap, x, y,"app_log_3");
+////        }
+//        }
+//        callServer(msg);
+//        if(bitmap!=null) {
+//            bitmap.recycle();
+//            bitmap = null;
+//        }
+//    }
+
+    public boolean pixelSearch(Bitmap bitmap,int x, int y, String msg) throws Exception {
+        boolean retrunValue = false;
         Log.d(TAG,"pixelSearch1 x:"+x+","+" y:"+y+","+" msg:"+msg);
         /**
          * 캐릭명(x, y)
@@ -164,46 +270,15 @@ public class MyService extends Service {
         int B = Color.blue(rgb); //blue값 추출
         Log.d(TAG,"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
         if("party_tab".equals(msg)) {
-            stop_search = !((R>=230&&R<=255)&&(G>=230&&G<=255)&&(B>=230&&B<=255));//파티 탭(49,121,206)
-            /**
-             * 실행 여부 확인
-             */
-            if(stop_search) {
-                Log.d(TAG,"실행 안함"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
-                msg = "app_on_destory";
-            }
+            retrunValue = (R>=230&&R<=255)&&(G>=230&&G<=255)&&(B>=230&&B<=255);//파티 탭(49,121,206)
         }
         if("safety_zone".equals(msg)) {
-            stop_search = ((R>=20&&R<=90)&&(G>=90&&G<=150)&&(B>=160&&B<=240));//세이프티 존(49,121,206)
-            /**
-             * 안전확인
-             */
-            if(stop_search) {
-                Log.d(TAG,"세이프티 존"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
-                msg = "app_on_destory";
-            }
+            retrunValue = ((R>=20&&R<=90)&&(G>=90&&G<=150)&&(B>=160&&B<=255));//세이프티 존(49,121,206)
         }
-        if("app_log_1".equals(msg)&&!stop_search) {
-            boolean flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
-            if(flag) {
-                Log.d(TAG,"빨강색"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"msg :"+msg);
-                msg = "app_on_destory";
-            } else {
-                Log.d(TAG,"빨강색 아님"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"msg :"+msg);
-                stop_search = true;
-            }
+        if("hp_red".equals(msg)) {
+            retrunValue = (260>R&&R>130&&G<100&&B<100);//HP 빨강(154,23,19)
         }
-        if("app_log_2".equals(msg)&&!stop_search) {
-            boolean flag = (260>R&&R>130&&G<100&&B<100);//캐릭명 빨강(154,23,19)
-            if(flag) {
-                Log.d(TAG,"빨강색"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"msg :"+msg);
-                msg = "app_on_destory";
-            } else {
-                Log.d(TAG,"빨강색 아님"+"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+"msg :"+msg);
-                stop_search = true;
-            }
-        }
-        return msg;
+        return retrunValue;
     }
 
     private void callServer(final String msg) {
@@ -212,7 +287,6 @@ public class MyService extends Service {
                 @Override
                 public void run() {
                     super.run();
-                    stop_search = true;
                     if(!RESULT_OK) {
                         quit();
                         stopSelf();
@@ -224,7 +298,7 @@ public class MyService extends Service {
                 public void sendDing(String msg) {
                     super.sendDing(msg);
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
