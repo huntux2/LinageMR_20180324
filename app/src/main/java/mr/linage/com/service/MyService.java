@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -70,6 +71,23 @@ public class MyService extends Service {
             File file = new File(Environment.getExternalStorageDirectory() + "/screencap-sample.png");
             Log.d(TAG,"search3:file.toString:"+file.toString());
             bitmap = BitmapFactory.decodeFile(file.toString());
+
+            //** 회전 갤럭시3
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            Log.d(TAG,"search3:width:"+width);
+            Log.d(TAG,"search3:height:"+height);
+            if(width<height) {
+                Matrix matrix = new Matrix();
+                matrix.postRotate(-90);
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+                width = bitmap.getWidth();
+                height = bitmap.getHeight();
+                Log.d(TAG,"search3:width:"+width);
+                Log.d(TAG,"search3:height:"+height);
+            }
+            //** 회전 갤럭시3
+
             Log.d(TAG,"search4:bitmap:"+bitmap);
             bitmapRead(bitmap);
         } finally {
@@ -81,11 +99,22 @@ public class MyService extends Service {
     }
 
     public void bitmapRead(Bitmap bitmap) throws Exception {
-        Log.d(TAG,"bitmapRead1");
+        Log.d(TAG,"bitmapRead");
         String msg = "app_on_destory";
         boolean party_tab = false;
         boolean safety_zone = false;
         boolean hp_red = false;
+        /**
+         * 테스트 컬러 확인용
+         * 로직 실행 확인 :
+         * 위치 : 952, 512
+         * 액션 : 없음
+         */
+        {
+            int x = 952;
+            int y = 512;
+            pixelSearch(bitmap, x, y, "컬러테스트");
+        }
         /**
          * 파티 탭
          * 로직 실행 확인 : 49,121,206
@@ -97,6 +126,7 @@ public class MyService extends Service {
             int y = 175;
             party_tab = pixelSearch(bitmap, x, y, "party_tab");
         }
+        Log.d(TAG,"bitmapRead party_tab:"+party_tab);
         if(party_tab) {
             /**
              * 세이프티 존 확인 : 49,121,206
@@ -108,9 +138,10 @@ public class MyService extends Service {
                 int y = 320;
                 safety_zone = pixelSearch(bitmap, x, y, "safety_zone");
             }
+            Log.d(TAG,"bitmapRead safety_zone:"+safety_zone);
             if(!safety_zone) {
                 /**
-                 * 힐 확인용
+                 * 파티 확인용
                  * HP 빨강 확인 : 154,23,19
                  * 위치 : 75, 255
                  * 액션 : 없음
@@ -119,6 +150,7 @@ public class MyService extends Service {
                     int x = 75;
                     int y = 255;
                     hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                    Log.d(TAG,"bitmapRead 파티 확인용 75, 255 hp_red:"+hp_red);
                 }
                 if(hp_red) {
                     /**
@@ -131,6 +163,7 @@ public class MyService extends Service {
                         int x = 102;
                         int y = 253;
                         hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                        Log.d(TAG,"bitmapRead 귀환 확인용 102, 253 hp_red:"+hp_red);
                         if(!hp_red) {
                             msg = "app_log_1";
                         }
@@ -148,6 +181,7 @@ public class MyService extends Service {
                     int x = 75;
                     int y = 255;
                     hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                    Log.d(TAG,"bitmapRead 파티 확인용 75, 255 hp_red:"+hp_red);
                 }
                 if(hp_red) {
                     /**
@@ -160,6 +194,7 @@ public class MyService extends Service {
                         int x = 162;
                         int y = 253;
                         hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                        Log.d(TAG,"bitmapRead 힐 확인용 162, 253 hp_red:"+hp_red);
                         if(!hp_red) {
                             msg = "app_log_2";
                         }
@@ -259,7 +294,7 @@ public class MyService extends Service {
 
     public boolean pixelSearch(Bitmap bitmap,int x, int y, String msg) throws Exception {
         boolean retrunValue = false;
-        Log.d(TAG,"pixelSearch1 x:"+x+","+" y:"+y+","+" msg:"+msg);
+        Log.d(TAG,"pixelSearch x:"+x+","+" y:"+y+","+" msg:"+msg);
         /**
          * 캐릭명(x, y)
          */
@@ -268,7 +303,7 @@ public class MyService extends Service {
         int R = Color.red(rgb); //red값 추출
         int G = Color.green(rgb); //green값 추출
         int B = Color.blue(rgb); //blue값 추출
-        Log.d(TAG,"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
+        Log.d(TAG,"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B+" msg:"+msg);
         if("party_tab".equals(msg)) {
             retrunValue = (R>=230&&R<=255)&&(G>=230&&G<=255)&&(B>=230&&B<=255);//파티 탭(49,121,206)
         }
@@ -282,6 +317,7 @@ public class MyService extends Service {
     }
 
     private void callServer(final String msg) {
+        Log.d(TAG,"callServer msg:"+msg);
         try {
             TCPClient tc = new TCPClient(socket_client_ip, socket_server_port) {
                 @Override
