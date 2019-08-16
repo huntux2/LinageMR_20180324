@@ -47,7 +47,7 @@
         <!-- [END fcm_default_channel] -->
 
         <activity
-            android:name=".linagemr.MainFcm"
+            android:name=".linagemr.ColorCheckActivity"
             android:configChanges="orientation"
             android:launchMode="singleTask"
             android:screenOrientation="landscape">
@@ -91,6 +91,10 @@
         </receiver>
 
         <service android:name=".service.MyService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <service android:name=".service.ColorCheckService"
             android:enabled="true"
             android:exported="true"></service>
 
