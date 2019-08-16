@@ -1,18 +1,25 @@
 package mr.linage.com.service;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import java.io.File;
 
+import mr.linage.com.R;
 import mr.linage.com.soket.TCPClient;
 
 /**
@@ -113,7 +120,7 @@ public class MyService extends Service {
         {
             int x = 952;
             int y = 512;
-            pixelSearch(bitmap, x, y, "컬러테스트");
+//            pixelSearch(bitmap, x, y, "컬러테스트");
         }
         /**
          * 파티 탭
@@ -134,11 +141,14 @@ public class MyService extends Service {
              * 액션 : 없음
              */
             {
-                int x = 1125;
-                int y = 320;
+                int x = 1134;
+                int y = 318;
                 safety_zone = pixelSearch(bitmap, x, y, "safety_zone");
             }
             Log.d(TAG,"bitmapRead safety_zone:"+safety_zone);
+            /**
+             * 귀환 체크
+             */
             if(!safety_zone) {
                 /**
                  * 파티 확인용
@@ -166,10 +176,15 @@ public class MyService extends Service {
                         Log.d(TAG,"bitmapRead 귀환 확인용 102, 253 hp_red:"+hp_red);
                         if(!hp_red) {
                             msg = "app_log_1";
+                            setNoti(0,bitmap);
                         }
                     }
                 }
             }
+            /**
+             * 귀환이 아닐경우
+             * 힐 체크
+             */
             if("app_on_destory".equals(msg)) {
                 /**
                  * 힐 확인용
@@ -185,18 +200,35 @@ public class MyService extends Service {
                 }
                 if(hp_red) {
                     /**
-                     * 힐 확인용
+                     * 데스힐 확인용
                      * HP 빨강 확인 : 154,23,19
-                     * 위치 : 162, 253
-                     * 액션 : L2 실행
+                     * 위치 : 75, 255
+                     * 액션 : 없음
                      */
                     {
-                        int x = 162;
-                        int y = 253;
-                        hp_red = pixelSearch(bitmap, x, y, "hp_red");
-                        Log.d(TAG,"bitmapRead 힐 확인용 162, 253 hp_red:"+hp_red);
-                        if(!hp_red) {
-                            msg = "app_log_2";
+                        int x = 245;
+                        int y = 275;
+                        hp_red = pixelSearch(bitmap, x, y, "hp_death");
+                        Log.d(TAG,"bitmapRead 파티 확인용 75, 255 hp_red:"+hp_red);
+                        if(hp_red) {
+//                            msg = "app_log_3";
+                        }
+                    }
+                    if(!hp_red) {
+                        /**
+                         * 힐 확인용
+                         * HP 빨강 확인 : 154,23,19
+                         * 위치 : 162, 253
+                         * 액션 : L2 실행
+                         */
+                        {
+                            int x = 162;
+                            int y = 253;
+                            hp_red = pixelSearch(bitmap, x, y, "hp_red");
+                            Log.d(TAG,"bitmapRead 힐 확인용 162, 253 hp_red:"+hp_red);
+                            if(!hp_red) {
+                                msg = "app_log_2";
+                            }
                         }
                     }
                 }
@@ -313,6 +345,9 @@ public class MyService extends Service {
         if("hp_red".equals(msg)) {
             retrunValue = (260>R&&R>130&&G<100&&B<100);//HP 빨강(154,23,19)
         }
+        if("hp_death".equals(msg)) {
+            retrunValue = (260>R&&R>180&&G<180&&B<180);//HP 빨강(216,99,85)
+        }
         return retrunValue;
     }
 
@@ -348,6 +383,87 @@ public class MyService extends Service {
             Log.d(TAG,"callServer call end ?????????");
             stopSelf();
         }
+    }
+
+    private void setNoti(int id, Bitmap bitmap) {
+        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.noti_test);
+        RemoteViews contentBigView = new RemoteViews(getPackageName(), R.layout.noti_test_big);
+        CharSequence tickerText = "Shortcuts";
+        long when = System.currentTimeMillis();
+        @SuppressWarnings("deprecation")
+        Notification notification = new Notification(R.drawable.ic_launcher_background, tickerText, when);
+//        notification.defaults |= Notification.DEFAULT_SOUND;
+//        notification.defaults |= Notification.DEFAULT_VIBRATE;
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+//        mBuilder.setContentTitle("제목");
+//        mBuilder.setContentText("테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스");
+//        mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText("테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스"));
+//        mBuilder.addAction(R.drawable.ic_launcher_background, "재실행", null);
+//        mBuilder.addAction(R.drawable.ic_launcher_background, "취소", null);
+        mBuilder.setPriority(Notification.PRIORITY_MAX);
+        mBuilder.setWhen(System.currentTimeMillis());
+        mBuilder.setSmallIcon(R.drawable.ic_launcher_background);
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel("channel_id", "channel_name", NotificationManager.IMPORTANCE_DEFAULT);
+//            notificationChannel.setDescription("channel description");
+//            notificationChannel.enableLights(true);
+//            notificationChannel.setLightColor(Color.GREEN);
+//            notificationChannel.enableVibration(true);
+//            notificationChannel.setVibrationPattern(new long[]{100, 200, 100, 200});
+//            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            mNotificationManager.createNotificationChannel(notificationChannel);
+            mBuilder = new NotificationCompat.Builder(this, notificationChannel.getId());
+            mBuilder.setPriority(Notification.PRIORITY_MAX);
+            mBuilder.setWhen(System.currentTimeMillis());
+            mBuilder.setSmallIcon(R.drawable.ic_launcher_background);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mBuilder.setCustomContentView(contentView);
+            if (contentBigView != null) {
+
+                NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+                bigText.bigText("빅테스트 내용");
+                bigText.setBigContentTitle("빅테스트 제목");
+                bigText.setSummaryText(getResources().getString(R.string.app_name));
+                mBuilder.setStyle(bigText);
+                mBuilder.setDefaults(Notification.DEFAULT_ALL);
+                mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                mBuilder.setShowWhen(true);
+
+                mBuilder.setCustomBigContentView(contentBigView);
+            }
+            notification = mBuilder.build();
+        } else {
+//            notification.contentView = contentView;
+//            if (contentBigView != null) {
+//                notification.bigContentView = contentBigView;
+//            }
+            NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle(mBuilder); //상단의 빌더를 인자로 받음..
+            bigPictureStyle.bigPicture(bitmap) //상단의 비트맵을 넣어준다.
+            .setBigContentTitle("타이틀" ) //열렸을때의 타이틀
+            .setSummaryText("이미지"); //열렸을때의 Description
+            notification = mBuilder.build();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel("channel_id", "channel_name", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.setDescription("channel description");
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.GREEN);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{100, 200, 100, 200});
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            mNotificationManager.createNotificationChannel(notificationChannel);
+        }
+        mNotificationManager.notify(id, notification);
+
+//        NotificationManager mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+//        mNotificationManager.notify(0, mBuilder.build());
     }
 
 }
