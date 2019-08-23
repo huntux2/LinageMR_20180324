@@ -21,7 +21,7 @@ public class TCPClient extends Thread {
     public boolean RESULT_OK = false;
 
     SocketAddress socketAddress;
-    private final int connection_timeout = 2000;
+    private final int connection_timeout = 10000;
 
     String msg = "app";
 
