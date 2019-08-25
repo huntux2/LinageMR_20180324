@@ -56,8 +56,7 @@
         <activity
             android:name=".linagemr.ColorCheckActivity"
             android:configChanges="orientation"
-            android:launchMode="singleTask"
-            android:screenOrientation="landscape">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

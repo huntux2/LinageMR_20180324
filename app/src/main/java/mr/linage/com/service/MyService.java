@@ -20,7 +20,10 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import mr.linage.com.R;
 import mr.linage.com.linagemr.ColorCheckActivity;
@@ -39,6 +42,7 @@ public class MyService extends Service {
     int id = 111;
     private String socket_server_ip = "";
     private int socket_server_port = 0;
+    private List<String> data_list = null;
 
     @Nullable
     @Override
@@ -64,8 +68,14 @@ public class MyService extends Service {
         try {
             socket_server_ip = intent.getStringExtra("socket_server_ip");
             socket_server_port = Integer.parseInt(StringUtil.nvl(intent.getStringExtra("socket_server_port"),"9999"));
+            String s_data_list = intent.getStringExtra("data_list");
+            if(s_data_list!=null) {
+                data_list = Arrays.asList(s_data_list.split(", "));;
+            }
             Log.d(TAG,"socket_server_ip:"+socket_server_ip);
             Log.d(TAG,"socket_server_port:"+socket_server_port);
+            Log.d(TAG,"s_data_list:"+s_data_list);
+            Log.d(TAG,"data_list:"+data_list);
 
             HashMap map = new HashMap();
 
@@ -79,22 +89,6 @@ public class MyService extends Service {
             Log.d(TAG,"cc_y:"+cc_y);
             map.put("cc_x", cc_x);
             map.put("cc_y", cc_y);
-
-            int action_x = Integer.parseInt(StringUtil.nvl(intent.getStringExtra("action_x"),"0"));
-            int action_y = Integer.parseInt(StringUtil.nvl(intent.getStringExtra("action_y"),"0"));
-            int action_r = Integer.parseInt(StringUtil.nvl(intent.getStringExtra("action_r"),"0"));
-            int action_g = Integer.parseInt(StringUtil.nvl(intent.getStringExtra("action_g"),"0"));
-            int action_b = Integer.parseInt(StringUtil.nvl(intent.getStringExtra("action_b"),"0"));
-            Log.d(TAG,"action_x:"+action_x);
-            Log.d(TAG,"action_y:"+action_y);
-            Log.d(TAG,"action_r:"+action_r);
-            Log.d(TAG,"action_g:"+action_g);
-            Log.d(TAG,"action_b:"+action_b);
-            map.put("action_x",action_x);
-            map.put("action_y",action_y);
-            map.put("action_r",action_r);
-            map.put("action_g",action_g);
-            map.put("action_b",action_b);
 
 //            callServer("app_on_destory");
             search(map);
@@ -128,33 +122,89 @@ public class MyService extends Service {
             File file = new File(Environment.getExternalStorageDirectory() + "/screencap-sample.png");
             Log.d(TAG,"search3:file.toString:"+file.toString());
             bitmap = BitmapFactory.decodeFile(file.toString());
-//            //** 회전 갤럭시3
-//            int width = bitmap.getWidth();
-//            int height = bitmap.getHeight();
-//            Log.d(TAG,"search3:width:"+width);
-//            Log.d(TAG,"search3:height:"+height);
-//            if(width<height) {
-//                Matrix matrix = new Matrix();
-//                matrix.postRotate(-90);
-//                bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-//                width = bitmap.getWidth();
-//                height = bitmap.getHeight();
-//                Log.d(TAG,"search3:width:"+width);
-//                Log.d(TAG,"search3:height:"+height);
-//            }
-//            //** 회전 갤럭시3
             Log.d(TAG,"search4:bitmap:"+bitmap);
             if("cc".equals(map.get("type"))) {
                 String msg = pixelSearch(bitmap, Integer.parseInt(map.get("cc_x").toString()), Integer.parseInt(map.get("cc_y").toString()));
                 callServer(msg);
             } else {
-                bitmapRead(bitmap, map);
+                bitmapRead(bitmap);
             }
         } finally {
             if(bitmap!=null) {
                 bitmap.recycle();
                 bitmap = null;
             }
+        }
+    }
+
+    public void bitmapRead(Bitmap bitmap) throws Exception {
+        Log.d(TAG,"bitmapRead");
+        String msg = "app_on_destory";
+        {
+            String CX = "";
+            String CY = "";
+            String R = "";
+            String G = "";
+            String B = "";
+            String C = "";
+            String X = "";
+            String Y = "";
+            String RGB_D = "";
+            for (int i=0;i<data_list.size();i++) {
+                String data = data_list.get(i);
+                Log.d(TAG,"data_list data:"+data);
+                Log.d(TAG,"data_list start i:"+i);
+                if(data.split("[|]").length==9) {
+                    CX = data.split("[|]")[0].replace("\\","");
+                    CY = data.split("[|]")[1].replace("\\","");
+                    R = data.split("[|]")[2].replace("\\","");
+                    G = data.split("[|]")[3].replace("\\","");
+                    B = data.split("[|]")[4].replace("\\","");
+                    C = data.split("[|]")[5].replace("\\","");
+                    X = data.split("[|]")[6];
+                    Y = data.split("[|]")[7];
+                    RGB_D = data.split("[|]")[8].trim();
+                    Log.d(TAG,"data_list CX:"+CX);
+                    Log.d(TAG,"data_list CY:"+CY);
+                    Log.d(TAG,"data_list R:"+R);
+                    Log.d(TAG,"data_list G:"+G);
+                    Log.d(TAG,"data_list B:"+B);
+                    Log.d(TAG,"data_list C:"+C);
+                    Log.d(TAG,"data_list RGB_D:"+RGB_D);
+                    Log.d(TAG,"data_list X:"+X);
+                    Log.d(TAG,"data_list Y:"+Y);
+                    int cnt = 0;
+                    boolean execute = true;
+                    for (int j=0;j<CX.split(",").length;j++) {
+                        int x = Integer.parseInt(CX.split(",")[cnt].trim());
+                        int y = Integer.parseInt(CY.split(",")[cnt].trim());
+                        int r = Integer.parseInt(R.split(",")[cnt].trim());
+                        int g = Integer.parseInt(G.split(",")[cnt].trim());
+                        int b = Integer.parseInt(B.split(",")[cnt].trim());
+                        String c = C.split(",")[cnt].trim();
+                        int rgb_d = Integer.parseInt(RGB_D.trim());
+                        if(!pixelSearch(bitmap, x, y, r, g, b, c, rgb_d)) {
+                            execute = false;
+                            break;
+                        }
+                        cnt++;
+                    }
+                    if(execute){
+                        msg = X.trim()+"|"+Y.trim();
+                        break;
+                    }
+                }
+                if(!"app_on_destory".equals(msg)) {
+                    break;
+                }
+                Log.d(TAG,"data_list end");
+                Log.d(TAG,"data_list >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            }
+        }
+        callServer(msg);
+        if(bitmap!=null) {
+            bitmap.recycle();
+            bitmap = null;
         }
     }
 
@@ -537,6 +587,27 @@ public class MyService extends Service {
         return retrunValue;
     }
 
+    public boolean pixelSearch(Bitmap bitmap,int x, int y,int r, int g,int b,String c,int rgb_d) throws Exception {
+        boolean retrunValue = false;
+        Log.d(TAG,"pixelSearch x:"+x+","+" y:"+y);
+        /**
+         * 캐릭명(x, y)
+         */
+        int rgb = bitmap.getPixel(x, y); //원하는 좌표값 입력
+        int A = Color.alpha(rgb); //alpha값 추출
+        int R = Color.red(rgb); //red값 추출
+        int G = Color.green(rgb); //green값 추출
+        int B = Color.blue(rgb); //blue값 추출
+        int range = rgb_d;
+        Log.d(TAG,"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
+        retrunValue = (R>=(r-range)&&R<=(r+range))&&(G>=(g-range)&&G<=(g+range))&&(B>=(b-range)&&B<=(b+range));
+        if("1".equals(c)) {
+            retrunValue = !retrunValue;
+        }
+        Log.d(TAG,"retrunValue :"+retrunValue);
+        return retrunValue;
+    }
+
     public boolean pixelSearch(Bitmap bitmap,int x, int y,int r, int g,int b) throws Exception {
         boolean retrunValue = false;
         Log.d(TAG,"pixelSearch x:"+x+","+" y:"+y);
@@ -551,6 +622,7 @@ public class MyService extends Service {
         int range = 30;
         Log.d(TAG,"A :"+A+" "+"R :"+R+" "+"G :"+G+" "+"B :"+B);
         retrunValue = (R>=(r-range)&&R<=(r+range))&&(G>=(g-range)&&G<=(g+range))&&(B>=(b-range)&&B<=(b+range));
+        Log.d(TAG,"retrunValue :"+retrunValue);
         return retrunValue;
     }
 
