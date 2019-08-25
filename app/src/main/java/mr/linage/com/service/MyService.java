@@ -189,6 +189,9 @@ public class MyService extends Service {
                         }
                         cnt++;
                     }
+                    if(execute&&i==0) {
+                        setNoti(0,bitmap);
+                    }
                     if(execute){
                         msg = X.trim()+"|"+Y.trim();
                         break;
