@@ -666,70 +666,27 @@ public class MyService extends Service {
     private void setNoti(int id, Bitmap bitmap) {
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.noti_test);
         RemoteViews contentBigView = new RemoteViews(getPackageName(), R.layout.noti_test_big);
-        CharSequence tickerText = "Shortcuts";
-        long when = System.currentTimeMillis();
-        @SuppressWarnings("deprecation")
-        Notification notification = new Notification(R.drawable.ic_launcher_background, tickerText, when);
-//        notification.defaults |= Notification.DEFAULT_SOUND;
-//        notification.defaults |= Notification.DEFAULT_VIBRATE;
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-//        mBuilder.setContentTitle("제목");
-//        mBuilder.setContentText("테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스");
-//        mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText("테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스 테스트 노티 커스텀 테스트세트스"));
-//        mBuilder.addAction(R.drawable.ic_launcher_background, "재실행", null);
-//        mBuilder.addAction(R.drawable.ic_launcher_background, "취소", null);
-        mBuilder.setPriority(Notification.PRIORITY_MAX);
-        mBuilder.setWhen(System.currentTimeMillis());
-        mBuilder.setSmallIcon(R.drawable.ic_launcher_background);
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel("channel_id", "channel_name", NotificationManager.IMPORTANCE_DEFAULT);
-//            notificationChannel.setDescription("channel description");
-//            notificationChannel.enableLights(true);
-//            notificationChannel.setLightColor(Color.GREEN);
-//            notificationChannel.enableVibration(true);
-//            notificationChannel.setVibrationPattern(new long[]{100, 200, 100, 200});
-//            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-            mNotificationManager.createNotificationChannel(notificationChannel);
-            mBuilder = new NotificationCompat.Builder(this, notificationChannel.getId());
-            mBuilder.setPriority(Notification.PRIORITY_MAX);
-            mBuilder.setWhen(System.currentTimeMillis());
-            mBuilder.setSmallIcon(R.drawable.ic_launcher_background);
-        }
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setPriority(Notification.PRIORITY_MAX);
+        mBuilder.setWhen(System.currentTimeMillis());
+        mBuilder.setSmallIcon(android.R.drawable.btn_star);
 
+        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle(mBuilder);
+        bigPictureStyle.bigPicture(bitmap);
+
+        //7버전
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            mBuilder.setCustomContentView(contentView);
-            if (contentBigView != null) {
-
-                NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
-                bigText.bigText("빅테스트 내용");
-                bigText.setBigContentTitle("빅테스트 제목");
-                bigText.setSummaryText(getResources().getString(R.string.app_name));
-                mBuilder.setStyle(bigText);
-                mBuilder.setDefaults(Notification.DEFAULT_ALL);
-                mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-                mBuilder.setShowWhen(true);
-
-                mBuilder.setCustomBigContentView(contentBigView);
-            }
-            notification = mBuilder.build();
-        } else {
-//            notification.contentView = contentView;
-//            if (contentBigView != null) {
-//                notification.bigContentView = contentBigView;
-//            }
-            NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle(mBuilder); //상단의 빌더를 인자로 받음..
-            bigPictureStyle.bigPicture(bitmap) //상단의 비트맵을 넣어준다.
-            .setBigContentTitle("타이틀" ) //열렸을때의 타이틀
-            .setSummaryText("이미지"); //열렸을때의 Description
-            notification = mBuilder.build();
+            mBuilder.setStyle(bigPictureStyle);
         }
 
+        //8버전
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel("channel_id", "channel_name", NotificationManager.IMPORTANCE_DEFAULT);
+            String channelId = "channel";
+            String channelName = "Channel Name";
+            NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.setDescription("channel description");
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.GREEN);
@@ -737,11 +694,14 @@ public class MyService extends Service {
             notificationChannel.setVibrationPattern(new long[]{100, 200, 100, 200});
             notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
             mNotificationManager.createNotificationChannel(notificationChannel);
+            mBuilder = new NotificationCompat.Builder(this, notificationChannel.getId());
+            mBuilder.setWhen(System.currentTimeMillis());
+            mBuilder.setSmallIcon(android.R.drawable.btn_star);
+            mBuilder.setStyle(bigPictureStyle);
         }
-        mNotificationManager.notify(id, notification);
 
-//        NotificationManager mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-//        mNotificationManager.notify(0, mBuilder.build());
+        Notification notification = mBuilder.build();
+        mNotificationManager.notify(id, notification);
     }
 
     public Notification getStartForegroundNoti() {
