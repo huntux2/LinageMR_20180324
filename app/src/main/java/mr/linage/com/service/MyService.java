@@ -664,24 +664,17 @@ public class MyService extends Service {
     }
 
     private void setNoti(int id, Bitmap bitmap) {
-        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.noti_test);
-        RemoteViews contentBigView = new RemoteViews(getPackageName(), R.layout.noti_test_big);
-
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setPriority(Notification.PRIORITY_MAX);
         mBuilder.setWhen(System.currentTimeMillis());
         mBuilder.setSmallIcon(android.R.drawable.btn_star);
-
         NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle(mBuilder);
         bigPictureStyle.bigPicture(bitmap);
-
         //7버전
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mBuilder.setStyle(bigPictureStyle);
         }
-
         //8버전
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String channelId = "channel";
@@ -699,7 +692,6 @@ public class MyService extends Service {
             mBuilder.setSmallIcon(android.R.drawable.btn_star);
             mBuilder.setStyle(bigPictureStyle);
         }
-
         Notification notification = mBuilder.build();
         mNotificationManager.notify(id, notification);
     }
